@@ -11,8 +11,8 @@
   --accent:#00D4FF;--accent2:#00FF9D;
   --text:#E8F4FD;--text2:#7A9BB5;--text3:#3A5570;
   --red:#FF4444;--orange:#FF8C00;--yellow:#FFD700;--green:#00CC6A;--blue:#00A8FF;
+  --govt:#FF9D00;
   --border:rgba(0,212,255,0.12);
-  --highlight:#FFD70033;--highlight-border:#FFD700;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);min-height:100vh}
@@ -20,14 +20,14 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:2px;backgroun
 
 .header{padding:16px 16px 0}
 .logo{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px}
-.title{font-size:20px;font-weight:700;color:var(--text);line-height:1.2}
+.title{font-size:20px;font-weight:700;line-height:1.2}
 .subtitle{font-size:10px;color:var(--text2);margin-top:2px}
 
-.name-box{margin:12px 16px;background:var(--surface);border:1px solid var(--highlight-border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.name-box{margin:12px 16px;background:var(--surface);border:1px solid #FFD70060;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.name-label{font-size:9px;color:var(--yellow);text-transform:uppercase;letter-spacing:1px;font-family:'Space Mono',monospace;margin-bottom:3px}
 .name-input{width:100%;background:transparent;border:none;outline:none;font-size:13px;font-weight:600;color:var(--text);font-family:'DM Sans',sans-serif}
 .name-input::placeholder{color:var(--text3);font-weight:400}
-.name-box-label{font-size:9px;color:var(--yellow);text-transform:uppercase;letter-spacing:1px;font-family:'Space Mono',monospace;margin-bottom:4px}
-.name-hint{font-size:9px;color:var(--text3);margin-top:3px}
+.name-hint{font-size:9px;color:var(--text3);margin-top:2px}
 
 #loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:50vh;gap:16px}
 .spinner{width:36px;height:36px;border:2px solid var(--surface3);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite}
@@ -35,169 +35,188 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:2px;backgroun
 .loading-text{font-family:'Space Mono',monospace;font-size:10px;color:var(--text2);letter-spacing:2px}
 #error-box{display:none;margin:16px;padding:14px;background:#FF444412;border:1px solid #FF444433;border-radius:8px;font-size:11px;color:#FF8888;line-height:1.7}
 
-.stats-bar{display:flex;gap:8px;padding:12px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.stat-card{flex:1;min-width:76px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 8px;position:relative;overflow:hidden}
+.stats-bar{display:flex;gap:6px;padding:10px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.stat-card{flex:1;min-width:68px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 7px;position:relative;overflow:hidden;cursor:pointer;transition:border-color 0.15s}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
 .stat-card.total::before{background:var(--accent)}
 .stat-card.active::before{background:var(--blue)}
 .stat-card.partial::before{background:var(--yellow)}
 .stat-card.stuck::before{background:var(--red)}
 .stat-card.done::before{background:var(--green)}
-.stat-val{font-family:'Space Mono',monospace;font-size:20px;font-weight:700}
+.stat-card.govt::before{background:var(--govt)}
+.stat-card.active-filter{box-shadow:0 0 10px rgba(0,212,255,0.3);border-color:var(--accent)}
+.stat-val{font-family:'Space Mono',monospace;font-size:18px;font-weight:700}
 .stat-card.stuck .stat-val{color:var(--red)}
 .stat-card.done .stat-val{color:var(--green)}
 .stat-card.partial .stat-val{color:var(--yellow)}
-.stat-label{font-size:8px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
+.stat-card.govt .stat-val{color:var(--govt)}
+.stat-label{font-size:8px;color:var(--text2);text-transform:uppercase;letter-spacing:0.3px;margin-top:2px}
 
 .tabs{display:flex;gap:4px;padding:0 16px;margin-bottom:4px;overflow-x:auto}
-.tab{padding:7px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid transparent;white-space:nowrap;transition:all 0.2s}
+.tab{padding:7px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid transparent;white-space:nowrap;transition:all 0.2s}
 .tab.active{background:var(--accent);color:#000}
 .tab:not(.active){background:var(--surface);color:var(--text2);border-color:var(--border)}
 
-.filters{display:flex;gap:6px;padding:6px 16px;overflow-x:auto}
-.filter-btn{padding:4px 10px;border-radius:16px;font-size:10px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);white-space:nowrap;transition:all 0.15s}
-.filter-btn.active{background:var(--surface3);color:var(--text);border-color:var(--accent)}
+/* SMART FILTER PANEL */
+.smart-filter-panel{margin:6px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.sfp-toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer}
+.sfp-title{font-size:11px;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:6px}
+.sfp-active-count{background:var(--accent);color:#000;font-size:9px;font-weight:700;padding:1px 7px;border-radius:10px;display:none}
+.sfp-arrow{font-size:10px;color:var(--text3);transition:transform 0.2s}
+.sfp-body{display:none;padding:0 14px 12px;border-top:1px solid var(--border)}
+.sfp-body.open{display:block}
+.sfp-group{margin-top:10px}
+.sfp-group-title{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-family:'Space Mono',monospace;margin-bottom:6px}
+.sfp-chips{display:flex;flex-wrap:wrap;gap:5px}
+.sfp-chip{padding:5px 11px;border-radius:16px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid;transition:all 0.15s;white-space:nowrap}
+.sfp-chip.off{background:var(--surface3);color:var(--text2);border-color:var(--border)}
+.sfp-chip.on{color:#000}
+.sfp-chip[data-group="size"].on{background:#00D4FF;border-color:#00D4FF}
+.sfp-chip[data-group="stage"].on{background:#00CC6A;border-color:#00CC6A}
+.sfp-chip[data-group="problem"].on{background:#FF4444;border-color:#FF4444;color:#fff}
+.sfp-chip[data-group="officer"].on{background:#FFD700;border-color:#FFD700}
+.sfp-chip[data-group="land"].on{background:#FF9D00;border-color:#FF9D00}
+.sfp-clear{margin-top:10px;font-size:10px;color:var(--text3);cursor:pointer;text-decoration:underline}
+
+/* SEARCH */
 .search-bar{margin:6px 16px;position:relative}
 .search-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 14px 9px 34px;font-size:11px;color:var(--text);outline:none;font-family:'DM Sans',sans-serif}
 .search-input::placeholder{color:var(--text3)}
 .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:13px}
+.result-count{font-size:10px;color:var(--text3);padding:2px 16px 4px;font-family:'Space Mono',monospace}
 
-.cards-container{padding:6px 16px 20px;display:flex;flex-direction:column;gap:8px}
-.farmer-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color 0.15s}
-.farmer-card.has-my-steps{border-color:var(--yellow);box-shadow:0 0 12px #FFD70018}
-.farmer-card.is-stuck{border-color:var(--red);box-shadow:0 0 8px #FF444418}
-.card-header{display:flex;align-items:center;gap:10px;padding:11px 12px;cursor:pointer}
+/* FARMER CARDS */
+.cards-container{padding:4px 16px 20px;display:flex;flex-direction:column;gap:7px}
+.farmer-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:all 0.15s}
+.farmer-card.has-my-steps{border-color:var(--yellow);box-shadow:0 0 10px #FFD70015}
+.farmer-card.is-stuck{border-color:var(--red)}
+.farmer-card.is-govt{border-color:var(--govt);border-left:3px solid var(--govt)}
+.farmer-card.is-ho-action{border-color:#FF6B35;box-shadow:0 0 10px #FF6B3515}
+.card-header{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer}
 .status-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .card-info{flex:1;min-width:0}
-.card-name{font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card-meta{font-size:9px;color:var(--text2);margin-top:2px}
+.card-name{font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-meta{font-size:9px;color:var(--text2);margin-top:2px;display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.tag{font-size:8px;font-weight:700;padding:1px 5px;border-radius:4px;white-space:nowrap}
+.tag-govt{background:#FF9D0020;color:#FF9D00;border:1px solid #FF9D0040}
+.tag-stuck{background:#FF444420;color:#FF4444;border:1px solid #FF444440}
+.tag-my{background:#FFD70020;color:#FFD700;border:1px solid #FFD70040}
+.tag-ho{background:#FF6B3520;color:#FF6B35;border:1px solid #FF6B3540}
+.tag-lease{background:#FF9D0030;color:#FF9D00;border:1px solid #FF9D0050}
 .card-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
 .card-acres{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);font-weight:700}
 .progress-bar{height:3px;background:var(--surface3);margin:0 12px 8px}
 .progress-fill{height:100%;border-radius:2px}
 .card-expanded{display:none;padding:10px 12px;border-top:1px solid var(--border);background:var(--surface2)}
 .card-expanded.open{display:block}
-.steps-list{display:flex;flex-direction:column;gap:5px;margin-bottom:8px}
-.step-row{display:grid;grid-template-columns:20px 1fr auto auto;gap:8px;align-items:center;padding:7px 10px;border-radius:6px;background:var(--surface3)}
-.step-row.my-step{background:var(--highlight);border:1px solid var(--highlight-border)}
-.step-row.stuck-step{background:#FF444412;border:1px solid #FF444433}
-.step-num{font-family:'Space Mono',monospace;font-size:9px;color:var(--text3);font-weight:700}
+.steps-list{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.step-row{display:grid;grid-template-columns:18px 1fr auto auto;gap:7px;align-items:center;padding:6px 9px;border-radius:5px;background:var(--surface3)}
+.step-row.my-step{background:#FFD70015;border:1px solid #FFD70030}
+.step-row.stuck-step{background:#FF444410;border:1px solid #FF444430}
+.step-row.ho-step{background:#FF6B3510;border:1px solid #FF6B3530}
+.step-num{font-family:'Space Mono',monospace;font-size:8px;color:var(--text3);font-weight:700}
 .step-name-cell{font-size:10px;color:var(--text2)}
-.step-name-cell.my-step-text{color:var(--yellow);font-weight:700}
-.step-name-cell.stuck-text{color:var(--red);font-weight:700}
-.step-officer{font-size:9px;color:var(--accent2);font-style:italic;text-align:right;min-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.step-status-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap}
-.badge-done{background:#00CC6A18;color:#00CC6A;border:1px solid #00CC6A33}
-.badge-progress{background:#FFD70018;color:#FFD700;border:1px solid #FFD70033}
-.badge-pending{background:#3A557018;color:#3A5570;border:1px solid #3A557033}
-.badge-stuck{background:#FF444418;color:#FF4444;border:1px solid #FF444433}
+.step-officer{font-size:9px;color:var(--accent2);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80px}
+.sbadge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;white-space:nowrap}
+.sbadge-done{background:#00CC6A18;color:#00CC6A;border:1px solid #00CC6A33}
+.sbadge-prog{background:#FFD70018;color:#FFD700;border:1px solid #FFD70033}
+.sbadge-pend{background:#3A557018;color:#3A5570;border:1px solid #3A557033}
+.sbadge-stuck{background:#FF444418;color:#FF4444;border:1px solid #FF444433}
+.sbadge-ho{background:#FF6B3518;color:#FF6B35;border:1px solid #FF6B3533}
 
-/* HO REPORT */
+/* GOVT LAND CARD */
+.govt-card{background:linear-gradient(135deg,#FF9D0010,#FF9D0005);border:1px solid #FF9D0030;border-radius:10px;padding:12px;margin-bottom:7px}
+.govt-card-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.govt-badge{background:#FF9D0020;color:#FF9D00;border:1px solid #FF9D0040;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px}
+.govt-name{font-size:12px;font-weight:700;color:var(--text)}
+.govt-meta{font-size:10px;color:var(--text2);display:flex;gap:10px;flex-wrap:wrap}
+
+/* REPORT */
 .report-btn-wrap{padding:8px 16px}
-.report-btn{width:100%;padding:14px;background:linear-gradient(135deg,#1B3A5C,#0D2A45);border:1px solid var(--accent);border-radius:10px;color:var(--accent);font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s}
-.report-btn:active{transform:scale(0.98)}
-.report-section{padding:8px 16px 20px;display:flex;flex-direction:column;gap:14px}
-
-/* Report cards */
+.report-btn{width:100%;padding:13px;background:linear-gradient(135deg,#1B3A5C,#0D2A45);border:1px solid var(--accent);border-radius:10px;color:var(--accent);font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s}
+.report-section{padding:6px 16px 20px;display:flex;flex-direction:column;gap:12px}
 .report-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.report-card-header{padding:12px 14px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
-.report-card-title{font-size:12px;font-weight:700;color:var(--text)}
-.report-card-sub{font-size:10px;color:var(--text2);margin-top:1px}
-.report-card-body{padding:12px 14px}
-
-/* Health score */
-.health-score-wrap{display:flex;align-items:center;gap:16px}
-.health-circle{width:80px;height:80px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;border:3px solid}
-.health-num{font-family:'Space Mono',monospace;font-size:22px;font-weight:700}
-.health-label{font-size:8px;text-transform:uppercase;letter-spacing:1px}
-.health-details{flex:1;display:flex;flex-direction:column;gap:5px}
-.health-row{display:flex;justify-content:space-between;align-items:center;font-size:11px}
-.health-bar{height:4px;background:var(--surface3);border-radius:2px;margin-top:2px}
-.health-bar-fill{height:100%;border-radius:2px}
-
-/* Pipeline */
-.pipeline-step{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
-.pipeline-step:last-child{border-bottom:none}
-.pipeline-num{font-family:'Space Mono',monospace;font-size:9px;color:var(--text3);width:16px;flex-shrink:0}
-.pipeline-name{font-size:10px;color:var(--text2);flex:1}
-.pipeline-bars{display:flex;gap:4px;align-items:center}
-.pipeline-pill{font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;white-space:nowrap}
-.pill-done{background:#00CC6A18;color:#00CC6A}
-.pill-prog{background:#FFD70018;color:#FFD700}
-.pill-pend{background:#3A557018;color:#7A9BB5}
-.pipeline-mini-bar{height:5px;border-radius:3px;min-width:4px}
-
-/* Day progress table */
-.day-table{width:100%;border-collapse:collapse}
-.day-table th{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;padding:6px 8px;text-align:left;border-bottom:1px solid var(--border)}
-.day-table td{font-size:10px;padding:7px 8px;border-bottom:1px solid #1A2F4444}
-.day-table tr:last-child td{border-bottom:none}
-.day-name{font-weight:600;color:var(--text)}
-.day-count{font-family:'Space Mono',monospace;font-weight:700;color:var(--green)}
-.day-steps{color:var(--text2);font-size:9px}
-
-/* Officer table */
-.officer-table{width:100%;border-collapse:collapse}
-.officer-table th{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;padding:6px 8px;text-align:center;border-bottom:1px solid var(--border)}
-.officer-table th:first-child{text-align:left}
-.officer-table td{font-size:10px;padding:7px 8px;border-bottom:1px solid #1A2F4444;text-align:center}
-.officer-table td:first-child{text-align:left;font-weight:600;color:var(--text)}
-.officer-table tr:last-child td{border-bottom:none}
-.rate-bar{height:4px;background:var(--surface3);border-radius:2px;margin-top:3px}
+.rch{padding:11px 14px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.rct{font-size:12px;font-weight:700}
+.rcs{font-size:10px;color:var(--text2);margin-top:1px}
+.rcb{padding:12px 14px}
+.health-wrap{display:flex;align-items:center;gap:14px}
+.health-circle{width:76px;height:76px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;border:3px solid}
+.health-num{font-family:'Space Mono',monospace;font-size:20px;font-weight:700}
+.health-lbl{font-size:8px;text-transform:uppercase;letter-spacing:1px}
+.health-rows{flex:1;display:flex;flex-direction:column;gap:4px}
+.hrow{display:flex;justify-content:space-between;font-size:11px}
+.hbar{height:3px;background:var(--surface3);border-radius:2px;margin-top:2px}
+.hbar-fill{height:100%;border-radius:2px}
+.pipeline-row{display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--border)}
+.pipeline-row:last-child{border-bottom:none}
+.pnum{font-family:'Space Mono',monospace;font-size:9px;color:var(--text3);width:14px;flex-shrink:0}
+.pname{font-size:10px;color:var(--text2);flex:1}
+.ppills{display:flex;gap:3px;align-items:center}
+.ppill{font-size:9px;font-weight:700;padding:2px 6px;border-radius:7px}
+.pp-done{background:#00CC6A18;color:#00CC6A}
+.pp-prog{background:#FFD70018;color:#FFD700}
+.pp-pend{background:#3A557018;color:#7A9BB5}
+.pp-stuck{background:#FF444418;color:#FF4444}
+.day-tbl{width:100%;border-collapse:collapse}
+.day-tbl th{font-size:9px;color:var(--text2);text-transform:uppercase;padding:5px 7px;text-align:left;border-bottom:1px solid var(--border)}
+.day-tbl td{font-size:10px;padding:6px 7px;border-bottom:1px solid #1A2F4444}
+.day-tbl tr:last-child td{border-bottom:none}
+.off-tbl{width:100%;border-collapse:collapse}
+.off-tbl th{font-size:9px;color:var(--text2);text-transform:uppercase;padding:5px 7px;text-align:center;border-bottom:1px solid var(--border)}
+.off-tbl th:first-child{text-align:left}
+.off-tbl td{font-size:10px;padding:6px 7px;border-bottom:1px solid #1A2F4444;text-align:center}
+.off-tbl td:first-child{text-align:left;font-weight:600}
+.off-tbl tr:last-child td{border-bottom:none}
+.rate-bar{height:3px;background:var(--surface3);border-radius:2px;margin-top:2px}
 .rate-fill{height:100%;border-radius:2px;background:var(--green)}
-.stuck-count{color:var(--red);font-weight:700}
-.rank-badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:8px;margin-left:4px}
+.stuck-row{padding:8px 10px;background:var(--surface3);border-radius:6px;margin-bottom:4px;border-left:3px solid var(--red)}
+.stuck-name{font-size:11px;font-weight:600}
+.stuck-meta{font-size:9px;color:var(--text2);margin-top:2px;display:flex;gap:7px;flex-wrap:wrap}
 
-/* Stuck files */
-.stuck-file-row{padding:8px 10px;background:var(--surface3);border-radius:6px;margin-bottom:5px;border-left:3px solid var(--red)}
-.stuck-file-name{font-size:11px;font-weight:600;color:var(--text)}
-.stuck-file-meta{font-size:9px;color:var(--text2);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
-.stuck-tag{color:var(--red);font-weight:700}
-
-/* Officers + villages tabs */
+/* Officers + Villages */
 .officer-section{padding:8px 16px 20px}
-.my-officer-card{background:linear-gradient(135deg,#FFD70015,#FFD70005);border:1px solid #FFD70040;border-radius:12px;padding:14px;margin-bottom:12px}
-.my-officer-label{font-size:9px;color:var(--yellow);text-transform:uppercase;letter-spacing:1.5px;font-family:'Space Mono',monospace;margin-bottom:6px}
-.my-officer-name{font-size:16px;font-weight:700;color:var(--text);margin-bottom:10px}
-.my-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
-.mstat{background:var(--surface3);border-radius:6px;padding:8px;text-align:center}
-.mstat-val{font-family:'Space Mono',monospace;font-size:16px;font-weight:700}
-.mstat-label{font-size:8px;color:var(--text2);text-transform:uppercase;margin-top:2px}
-.step-breakdown{display:flex;flex-direction:column;gap:4px}
-.sbd-title{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-family:'Space Mono',monospace}
-.sbd-row{display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--surface3);border-radius:5px}
+.my-perf-card{background:linear-gradient(135deg,#FFD70015,#FFD70005);border:1px solid #FFD70040;border-radius:12px;padding:14px;margin-bottom:12px}
+.my-perf-lbl{font-size:9px;color:var(--yellow);text-transform:uppercase;letter-spacing:1.5px;font-family:'Space Mono',monospace;margin-bottom:5px}
+.my-perf-name{font-size:16px;font-weight:700;margin-bottom:10px}
+.my-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px}
+.mst{background:var(--surface3);border-radius:6px;padding:7px;text-align:center}
+.mst-val{font-family:'Space Mono',monospace;font-size:15px;font-weight:700}
+.mst-lbl{font-size:8px;color:var(--text2);text-transform:uppercase;margin-top:2px}
+.sbd{display:flex;flex-direction:column;gap:3px}
+.sbd-title{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;font-family:'Space Mono',monospace}
+.sbd-row{display:flex;align-items:center;gap:7px;padding:5px 8px;background:var(--surface3);border-radius:5px}
 .sbd-name{font-size:10px;color:var(--text2);flex:1}
 .sbd-done{font-size:10px;font-weight:700;color:var(--green)}
-.sbd-pending{font-size:10px;color:var(--text3)}
-.sbd-bar{height:4px;background:var(--surface2);border-radius:2px;width:50px}
-.sbd-bar-fill{height:100%;background:var(--green);border-radius:2px}
-.all-officers-title{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;font-family:'Space Mono',monospace}
-.officer-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px}
-.officer-name-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.officer-name{font-size:13px;font-weight:700;color:var(--text)}
-.officer-badge{font-size:9px;padding:2px 8px;border-radius:10px;font-weight:600}
-.badge-star{background:#FFD70020;color:#FFD700;border:1px solid #FFD70040}
-.badge-good{background:#00CC6A20;color:#00CC6A;border:1px solid #00CC6A40}
-.badge-warn{background:#FF444420;color:#FF4444;border:1px solid #FF444440}
-.officer-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
-.ostat{background:var(--surface3);border-radius:5px;padding:7px;text-align:center}
-.ostat-val{font-family:'Space Mono',monospace;font-size:14px;font-weight:700}
-.ostat-label{font-size:8px;color:var(--text2);text-transform:uppercase;margin-top:1px}
+.sbd-pend{font-size:10px;color:var(--text3)}
+.sbd-bar{height:3px;background:var(--surface2);border-radius:2px;width:40px}
+.sbd-fill{height:100%;background:var(--green);border-radius:2px}
+.all-off-title{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin:14px 0 7px;font-family:'Space Mono',monospace}
+.off-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px;margin-bottom:7px}
+.off-name-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.off-name{font-size:13px;font-weight:700}
+.off-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:600}
+.ob-star{background:#FFD70020;color:#FFD700;border:1px solid #FFD70040}
+.ob-good{background:#00CC6A20;color:#00CC6A;border:1px solid #00CC6A40}
+.ob-warn{background:#FF444420;color:#FF4444;border:1px solid #FF444440}
+.off-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.ost{background:var(--surface3);border-radius:5px;padding:6px;text-align:center}
+.ost-val{font-family:'Space Mono',monospace;font-size:13px;font-weight:700}
+.ost-lbl{font-size:8px;color:var(--text2);text-transform:uppercase;margin-top:1px}
 .village-section{padding:8px 16px 20px}
-.village-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px}
-.village-name{font-size:14px;font-weight:700;margin-bottom:6px}
-.village-sub{font-size:10px;color:var(--text2);margin-bottom:10px}
-.village-progress{display:flex;gap:3px;margin-bottom:8px;height:8px}
-.vprog-seg{border-radius:4px}
-.village-legend{display:flex;gap:10px;flex-wrap:wrap}
-.vleg-item{font-size:9px;color:var(--text2);display:flex;align-items:center;gap:3px}
-.vleg-dot{width:7px;height:7px;border-radius:50%}
+.vcrd{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px;margin-bottom:7px}
+.vname{font-size:14px;font-weight:700;margin-bottom:5px}
+.vsub{font-size:10px;color:var(--text2);margin-bottom:9px}
+.vprog{display:flex;gap:3px;height:7px;margin-bottom:7px}
+.vseg{border-radius:3px}
+.vleg{display:flex;gap:9px;flex-wrap:wrap}
+.vleg-i{font-size:9px;color:var(--text2);display:flex;align-items:center;gap:3px}
+.vleg-d{width:7px;height:7px;border-radius:50%}
 .empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:11px;line-height:1.8}
-.last-updated{font-family:'Space Mono',monospace;font-size:8px;color:var(--text3);padding:4px 16px 6px}
+.last-upd{font-family:'Space Mono',monospace;font-size:8px;color:var(--text3);padding:3px 16px 5px}
 </style>
 </head>
 <body>
-
 <div class="header">
   <div class="logo">KREDL · Pavagada · 2GW Solar + 1GWh BESS</div>
   <div class="title">Land Acquisition Dashboard</div>
@@ -207,9 +226,9 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:2px;backgroun
 <div class="name-box">
   <div style="font-size:18px">👤</div>
   <div style="flex:1">
-    <div class="name-box-label">Your Name (Field Officer)</div>
+    <div class="name-label">Your Name (Field Officer)</div>
     <input class="name-input" id="my-name" placeholder="Type your name to highlight your steps..." oninput="onNameChange()"/>
-    <div class="name-hint">Your assigned steps glow yellow across all farmer cards</div>
+    <div class="name-hint">Your assigned steps glow yellow · Your cards rise to top</div>
   </div>
 </div>
 
@@ -217,14 +236,15 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:2px;backgroun
 <div id="error-box"></div>
 
 <div id="dashboard" style="display:none">
-  <div class="last-updated" id="last-updated"></div>
+  <div class="last-upd" id="last-upd"></div>
 
+  <!-- STATS BAR — tappable filters -->
   <div class="stats-bar">
-    <div class="stat-card total"><div class="stat-val" id="s-total">0</div><div class="stat-label">Farmers</div></div>
-    <div class="stat-card done"><div class="stat-val" id="s-done">0</div><div class="stat-label">Registered</div></div>
-    <div class="stat-card active"><div class="stat-val" id="s-active">0</div><div class="stat-label">Active</div></div>
-    <div class="stat-card partial"><div class="stat-val" id="s-partial">0</div><div class="stat-label">Partial</div></div>
-    <div class="stat-card stuck"><div class="stat-val" id="s-stuck">0</div><div class="stat-label">Stuck 5d+</div></div>
+    <div class="stat-card total" onclick="quickStatFilter('all')"><div class="stat-val" id="s-total">0</div><div class="stat-label">All</div></div>
+    <div class="stat-card done" onclick="quickStatFilter('registered')"><div class="stat-val" id="s-done">0</div><div class="stat-label">Registered</div></div>
+    <div class="stat-card active" onclick="quickStatFilter('active')"><div class="stat-val" id="s-active">0</div><div class="stat-label">Active</div></div>
+    <div class="stat-card stuck" onclick="quickStatFilter('stuck')"><div class="stat-val" id="s-stuck">0</div><div class="stat-label">Stuck 5d+</div></div>
+    <div class="stat-card govt" onclick="quickStatFilter('govt')"><div class="stat-val" id="s-govt">0</div><div class="stat-label">Govt Land</div></div>
   </div>
 
   <div class="tabs">
@@ -232,24 +252,84 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:2px;backgroun
     <div class="tab" onclick="switchTab('report',this)">📊 HO Report</div>
     <div class="tab" onclick="switchTab('officers',this)">👥 Officers</div>
     <div class="tab" onclick="switchTab('villages',this)">📍 Villages</div>
+    <div class="tab" onclick="switchTab('govt',this)">🏛️ Govt Land</div>
   </div>
 
   <!-- FARMERS TAB -->
   <div id="tab-farmers">
-    <div class="filters" id="village-filters"></div>
+    <!-- Smart Filter Panel -->
+    <div class="smart-filter-panel">
+      <div class="sfp-toggle" onclick="toggleSFP()">
+        <div class="sfp-title">⚡ Smart Filters <span class="sfp-active-count" id="sfp-count">0</span></div>
+        <div class="sfp-arrow" id="sfp-arrow">▼</div>
+      </div>
+      <div class="sfp-body" id="sfp-body">
+
+        <div class="sfp-group">
+          <div class="sfp-group-title">📐 Land Size</div>
+          <div class="sfp-chips">
+            <div class="sfp-chip off" data-group="size" data-filter="above10" onclick="toggleChip(this)">Above 10 Acres</div>
+            <div class="sfp-chip off" data-group="size" data-filter="above20" onclick="toggleChip(this)">Above 20 Acres</div>
+            <div class="sfp-chip off" data-group="size" data-filter="above50" onclick="toggleChip(this)">Above 50 Acres</div>
+            <div class="sfp-chip off" data-group="size" data-filter="priority474" onclick="toggleChip(this)">474A Priority File</div>
+          </div>
+        </div>
+
+        <div class="sfp-group">
+          <div class="sfp-group-title">📋 Acquisition Stage</div>
+          <div class="sfp-chips">
+            <div class="sfp-chip off" data-group="stage" data-filter="readyForReg" onclick="toggleChip(this)">Ready for Registration</div>
+            <div class="sfp-chip off" data-group="stage" data-filter="dcDone" onclick="toggleChip(this)">DC Cert Done</div>
+            <div class="sfp-chip off" data-group="stage" data-filter="kaveriDone" onclick="toggleChip(this)">Kaveri Upload Done</div>
+            <div class="sfp-chip off" data-group="stage" data-filter="registered" onclick="toggleChip(this)">Registered ✅</div>
+            <div class="sfp-chip off" data-group="stage" data-filter="notStarted" onclick="toggleChip(this)">Not Started</div>
+          </div>
+        </div>
+
+        <div class="sfp-group">
+          <div class="sfp-group-title">🚨 Problem Files</div>
+          <div class="sfp-chips">
+            <div class="sfp-chip off" data-group="problem" data-filter="stuck5" onclick="toggleChip(this)">Stuck 5+ Days</div>
+            <div class="sfp-chip off" data-group="problem" data-filter="noOfficer" onclick="toggleChip(this)">No Officer Assigned</div>
+            <div class="sfp-chip off" data-group="problem" data-filter="hoAction" onclick="toggleChip(this)">HO Action Needed</div>
+            <div class="sfp-chip off" data-group="problem" data-filter="deadFile" onclick="toggleChip(this)">Dead Files (Started, Zero Progress)</div>
+          </div>
+        </div>
+
+        <div class="sfp-group">
+          <div class="sfp-group-title">👥 Officer Performance</div>
+          <div class="sfp-chips">
+            <div class="sfp-chip off" data-group="officer" data-filter="poorPerf" onclick="toggleChip(this)">Poor Performers &lt;30%</div>
+            <div class="sfp-chip off" data-group="officer" data-filter="officerStuck" onclick="toggleChip(this)">Officers with Stuck Files</div>
+            <div class="sfp-chip off" data-group="officer" data-filter="unassigned" onclick="toggleChip(this)">Unassigned Steps</div>
+          </div>
+        </div>
+
+        <div class="sfp-group">
+          <div class="sfp-group-title">🏛️ Land Type</div>
+          <div class="sfp-chips">
+            <div class="sfp-chip off" data-group="land" data-filter="govtOnly" onclick="toggleChip(this)">Govt Land Only</div>
+            <div class="sfp-chip off" data-group="land" data-filter="privateOnly" onclick="toggleChip(this)">Private Land Only</div>
+            <div class="sfp-chip off" data-group="land" data-filter="mixedLand" onclick="toggleChip(this)">Mixed (Kharab)</div>
+          </div>
+        </div>
+
+        <div class="sfp-clear" onclick="clearAllFilters()">✕ Clear all filters</div>
+      </div>
+    </div>
+
     <div class="search-bar">
       <span class="search-icon">🔍</span>
       <input class="search-input" id="search" placeholder="Search name, survey no, village, officer..." oninput="renderCards()"/>
     </div>
+    <div class="result-count" id="result-count"></div>
     <div class="cards-container" id="cards"></div>
   </div>
 
   <!-- HO REPORT TAB -->
   <div id="tab-report" style="display:none">
     <div class="report-btn-wrap">
-      <button class="report-btn" onclick="generateReport()">
-        <span>📊</span> Generate HO Command Report
-      </button>
+      <button class="report-btn" onclick="generateReport()">📊 Generate HO Command Report</button>
     </div>
     <div class="report-section" id="report-section"></div>
   </div>
@@ -263,6 +343,11 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:2px;backgroun
   <div id="tab-villages" style="display:none">
     <div class="village-section" id="village-section"></div>
   </div>
+
+  <!-- GOVT LAND TAB -->
+  <div id="tab-govt" style="display:none">
+    <div style="padding:8px 16px 20px" id="govt-section"></div>
+  </div>
 </div>
 
 <script>
@@ -270,31 +355,33 @@ const SHEET_ID="17Te7-IHsKXsI1dN-c34XHui1EU0rZWDs";
 const SHEET_NAME="Master Tracker";
 const URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&headers=2`;
 const STEPS=["EOI + Docs","Scrutiny","Affidavit","Conversion Upload","HO Payment 1","DC Verification","Kaveri 2.0 Upload","HO Payment 2","Registration"];
-const STEP_TARGETS=[1,1,1,1,1,1,1,1,2];
 const VCOL={"Ryapte":"#2E86AB","Thirumani":"#A23B72","Husenpura":"#1B6B3A","Nagenahalli":"#F18F01","Reddyvarihalli":"#C73E1D"};
-const SCOL={"Registered":"#00CC6A","Active":"#00A8FF","Partial":"#FFD700","Not Started":"#3A5570"};
+// HO payment steps = indices 4 and 7
+const HO_STEPS=[4,7];
+// Govt land keywords
+const GOVT_KW=["sarkari","sarakari","gomala","gowmala","pada","bhudana","budana","kharab","sarkari pada","sarkari budana","government","govt"];
 
 let allData=[];
 let myName="";
-let activeVillage="All";
+let activeFilters=new Set();
+let statFilter="all";
+let sfpOpen=false;
+
+function isGovtLand(owner){
+  if(!owner)return false;
+  const o=owner.toLowerCase();
+  return GOVT_KW.some(k=>o.includes(k));
+}
 
 function parseDate(s){
   if(!s||s==="")return null;
-  // Try DD-MM-YYYY
   const m=s.match(/(\d{1,2})-(\d{1,2})-(\d{4})/);
   if(m)return new Date(parseInt(m[3]),parseInt(m[2])-1,parseInt(m[1]));
-  // Try Date(year,month,day) from gviz
   const m2=s.match(/Date\((\d+),(\d+),(\d+)\)/);
   if(m2)return new Date(parseInt(m2[1]),parseInt(m2[2]),parseInt(m2[3]));
-  const d=new Date(s);
-  return isNaN(d)?null:d;
+  const d=new Date(s);return isNaN(d)?null:d;
 }
-
-function daysBetween(d1,d2){
-  if(!d1||!d2)return null;
-  return Math.floor((d2-d1)/(1000*60*60*24));
-}
-
+function daysBetween(d1,d2){if(!d1||!d2)return null;return Math.floor((d2-d1)/(1000*60*60*24));}
 function today(){return new Date();}
 
 async function loadData(){
@@ -308,70 +395,144 @@ async function loadData(){
       const r=rows[i];
       if(!r.c||!r.c[0]||r.c[0].v===null)continue;
       const g=(idx)=>r.c[idx]?(r.c[idx].v!==null&&r.c[idx].v!==undefined?String(r.c[idx].v).trim():""):"";
-      const steps=STEPS.map((_,s)=>({
-        status:g(6+s*3),
-        officer:g(7+s*3),
-        date:g(8+s*3),
-        parsedDate:parseDate(g(8+s*3))
-      }));
-      // Detect stuck: In Progress with date older than 5 days
-      const stuckSteps=steps.filter(st=>{
-        if(st.status!=="In Progress")return false;
-        if(!st.parsedDate)return false;
-        return daysBetween(st.parsedDate,today())>=5;
-      });
+      const steps=STEPS.map((_,s)=>({status:g(6+s*3),officer:g(7+s*3),date:g(8+s*3),parsedDate:parseDate(g(8+s*3))}));
+      const owner=g(4);
+      const govt=isGovtLand(owner);
+      const stuckSteps=steps.filter(st=>st.status==="In Progress"&&st.parsedDate&&daysBetween(st.parsedDate,today())>=5);
+      const hoNeeded=HO_STEPS.some(idx=>steps[idx].status==="In Progress"||steps[idx].status==="Pending"&&steps[idx-1]&&steps[idx-1].status==="Done");
+      const doneCount=steps.filter(s=>s.status==="Done").length;
+      const hasOfficer=steps.some(s=>s.officer&&s.officer.trim());
       allData.push({
-        sl:g(0),source:g(1),village:g(2),syNo:g(3),
-        owner:g(4),acres:parseFloat(g(5))||0,
+        sl:g(0),source:g(1),village:g(2),syNo:g(3),owner,acres:parseFloat(g(5))||0,
         steps,progress:g(33),status:g(34),
-        isStuck:stuckSteps.length>0,stuckSteps
+        isGovt:govt,isStuck:stuckSteps.length>0,stuckSteps,
+        isHoNeeded:hoNeeded,doneCount,hasOfficer
       });
     }
     updateStats();
-    buildVillageFilters();
     renderCards();
     renderOfficers();
     renderVillages();
+    renderGovtTab();
     document.getElementById("loading").style.display="none";
     document.getElementById("dashboard").style.display="block";
-    document.getElementById("last-updated").textContent="Last updated: "+new Date().toLocaleTimeString("en-IN")+" · Auto-refreshes every 2 min";
+    document.getElementById("last-upd").textContent="Updated: "+new Date().toLocaleTimeString("en-IN")+" · Auto-refresh every 2 min";
   }catch(e){
     document.getElementById("loading").style.display="none";
     const eb=document.getElementById("error-box");
     eb.style.display="block";
-    eb.innerHTML=`<strong>Could not load data.</strong><br>Make sure Google Sheet is shared as "Anyone with the link can view".<br><br>Error: ${e.message}`;
+    eb.innerHTML=`<strong>Could not load data.</strong><br>Make sure Google Sheet is shared as "Anyone with the link can view".<br>Error: ${e.message}`;
   }
 }
 
 function updateStats(){
-  let done=0,active=0,partial=0,notstarted=0,stuck=0;
+  let done=0,active=0,stuck=0,govt=0;
   allData.forEach(f=>{
-    const s=f.status;
-    if(s.includes("Registered"))done++;
-    else if(s.includes("Active"))active++;
-    else if(s.includes("Partial"))partial++;
-    else notstarted++;
+    if(f.status.includes("Registered"))done++;
+    else if(f.status.includes("Active")||f.status.includes("Partial"))active++;
     if(f.isStuck)stuck++;
+    if(f.isGovt)govt++;
   });
   document.getElementById("s-total").textContent=allData.length;
   document.getElementById("s-done").textContent=done;
   document.getElementById("s-active").textContent=active;
-  document.getElementById("s-partial").textContent=partial;
   document.getElementById("s-stuck").textContent=stuck;
+  document.getElementById("s-govt").textContent=govt;
 }
 
-function buildVillageFilters(){
-  const villages=["All",...new Set(allData.map(f=>f.village).filter(Boolean))];
-  document.getElementById("village-filters").innerHTML=villages.map(v=>
-    `<div class="filter-btn ${v===activeVillage?'active':''}" onclick="setVillage('${v}',this)">${v}</div>`
-  ).join("");
+function toggleSFP(){
+  sfpOpen=!sfpOpen;
+  document.getElementById("sfp-body").classList.toggle("open",sfpOpen);
+  document.getElementById("sfp-arrow").textContent=sfpOpen?"▲":"▼";
 }
 
-function setVillage(v,el){
-  activeVillage=v;
-  document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
-  el.classList.add("active");
+function toggleChip(el){
+  el.classList.toggle("on");el.classList.toggle("off");
+  const f=el.dataset.filter;
+  if(activeFilters.has(f))activeFilters.delete(f);else activeFilters.add(f);
+  updateFilterCount();
   renderCards();
+}
+
+function updateFilterCount(){
+  const n=activeFilters.size;
+  const cnt=document.getElementById("sfp-count");
+  cnt.textContent=n;cnt.style.display=n>0?"inline":"none";
+}
+
+function clearAllFilters(){
+  activeFilters.clear();statFilter="all";
+  document.querySelectorAll(".sfp-chip").forEach(c=>{c.classList.remove("on");c.classList.add("off");});
+  document.querySelectorAll(".stat-card").forEach(c=>c.classList.remove("active-filter"));
+  updateFilterCount();renderCards();
+}
+
+function quickStatFilter(type){
+  statFilter=statFilter===type?"all":type;
+  document.querySelectorAll(".stat-card").forEach(c=>c.classList.remove("active-filter"));
+  if(statFilter!=="all"){
+    const map={registered:0,active:1,stuck:3,govt:4};
+    const cards=document.querySelectorAll(".stat-card");
+    if(map[statFilter]!==undefined)cards[map[statFilter]].classList.add("active-filter");
+  }
+  renderCards();
+}
+
+// Build officer performance cache for officer-based filters
+function getOfficerPerfMap(){
+  const map={};
+  allData.forEach(f=>{
+    f.steps.forEach((st,s_idx)=>{
+      const name=st.officer&&st.officer.trim()?st.officer.trim():"";
+      if(!name)return;
+      if(!map[name])map[name]={assigned:0,done:0,stuck:0};
+      map[name].assigned++;
+      if(st.status==="Done")map[name].done++;
+      if(st.status==="In Progress"&&st.parsedDate&&daysBetween(st.parsedDate,today())>=5)map[name].stuck++;
+    });
+  });
+  return map;
+}
+
+function applyFilters(farmers){
+  if(statFilter!=="all"){
+    farmers=farmers.filter(f=>{
+      if(statFilter==="registered")return f.status.includes("Registered");
+      if(statFilter==="active")return f.status.includes("Active")||f.status.includes("Partial");
+      if(statFilter==="stuck")return f.isStuck;
+      if(statFilter==="govt")return f.isGovt;
+      return true;
+    });
+  }
+  if(activeFilters.size===0)return farmers;
+  const perfMap=getOfficerPerfMap();
+  // Officers with poor performance — get their names
+  const poorOfficers=new Set(Object.entries(perfMap).filter(([,v])=>v.assigned>0&&(v.done/v.assigned)<0.3).map(([k])=>k));
+  const stuckOfficers=new Set(Object.entries(perfMap).filter(([,v])=>v.stuck>0).map(([k])=>k));
+
+  return farmers.filter(f=>{
+    let pass=true;
+    if(activeFilters.has("above10")&&f.acres<10)pass=false;
+    if(activeFilters.has("above20")&&f.acres<20)pass=false;
+    if(activeFilters.has("above50")&&f.acres<50)pass=false;
+    if(activeFilters.has("priority474")&&f.acres<400)pass=false;
+    if(activeFilters.has("readyForReg")&&!(f.steps.slice(0,8).every(s=>s.status==="Done")&&f.steps[8].status!=="Done"))pass=false;
+    if(activeFilters.has("dcDone")&&f.steps[5].status!=="Done")pass=false;
+    if(activeFilters.has("kaveriDone")&&f.steps[6].status!=="Done")pass=false;
+    if(activeFilters.has("registered")&&!f.status.includes("Registered"))pass=false;
+    if(activeFilters.has("notStarted")&&!f.status.includes("Not Started"))pass=false;
+    if(activeFilters.has("stuck5")&&!f.isStuck)pass=false;
+    if(activeFilters.has("noOfficer")&&f.hasOfficer)pass=false;
+    if(activeFilters.has("hoAction")&&!f.isHoNeeded)pass=false;
+    if(activeFilters.has("deadFile")&&!(f.doneCount===0&&f.hasOfficer))pass=false;
+    if(activeFilters.has("poorPerf")&&!f.steps.some(st=>st.officer&&poorOfficers.has(st.officer.trim())))pass=false;
+    if(activeFilters.has("officerStuck")&&!f.steps.some(st=>st.officer&&stuckOfficers.has(st.officer.trim())))pass=false;
+    if(activeFilters.has("unassigned")&&f.steps.every(st=>st.officer&&st.officer.trim()))pass=false;
+    if(activeFilters.has("govtOnly")&&!f.isGovt)pass=false;
+    if(activeFilters.has("privateOnly")&&f.isGovt)pass=false;
+    if(activeFilters.has("mixedLand")&&!(f.owner&&f.owner.toLowerCase().includes("kharab")))pass=false;
+    return pass;
+  });
 }
 
 function getStatusColor(s){
@@ -381,55 +542,56 @@ function getStatusColor(s){
   return"#3A5570";
 }
 
-function getProgress(steps){
-  return Math.round(steps.filter(s=>s.status==="Done").length/9*100);
-}
-
-function hasMySteps(f){
-  if(!myName)return false;
-  return f.steps.some(s=>s.officer&&s.officer.toUpperCase().includes(myName));
-}
-
-function onNameChange(){
-  myName=document.getElementById("my-name").value.trim().toUpperCase();
-  renderCards();
-  renderOfficers();
-}
+function hasMySteps(f){if(!myName)return false;return f.steps.some(s=>s.officer&&s.officer.toUpperCase().includes(myName));}
+function onNameChange(){myName=document.getElementById("my-name").value.trim().toUpperCase();renderCards();renderOfficers();}
 
 function renderCards(){
   const search=document.getElementById("search").value.toLowerCase();
   let filtered=allData.filter(f=>{
-    const mv=activeVillage==="All"||f.village===activeVillage;
     const ms=!search||f.owner.toLowerCase().includes(search)||f.syNo.toLowerCase().includes(search)||f.village.toLowerCase().includes(search)||f.steps.some(s=>s.officer&&s.officer.toLowerCase().includes(search));
-    return mv&&ms;
+    return ms;
   });
+  filtered=applyFilters(filtered);
+  // Sort: my steps first, then stuck, then rest
+  if(myName)filtered.sort((a,b)=>hasMySteps(b)-hasMySteps(a)||b.isStuck-a.isStuck);
   const container=document.getElementById("cards");
-  if(!filtered.length){container.innerHTML='<div class="empty">No farmers found</div>';return;}
+  document.getElementById("result-count").textContent=`Showing ${filtered.length} of ${allData.length} farmers`;
+  if(!filtered.length){container.innerHTML='<div class="empty">No farmers match current filters.<br><span style="cursor:pointer;color:var(--accent)" onclick="clearAllFilters()">Clear filters</span></div>';return;}
   container.innerHTML=filtered.map((f,i)=>{
-    const prog=getProgress(f.steps);
+    const prog=Math.round(f.doneCount/9*100);
     const pc=prog===100?"#00CC6A":prog>50?"#00A8FF":prog>0?"#FFD700":"#3A5570";
     const vc=VCOL[f.village]||"#4A7FA5";
-    const sc=getStatusColor(f.status);
+    const sc=f.isGovt?"#FF9D00":f.isStuck?"#FF4444":getStatusColor(f.status);
     const mine=hasMySteps(f);
     const stepsHtml=STEPS.map((name,k)=>{
       const st=f.steps[k];
       const isMyStep=myName&&st.officer&&st.officer.toUpperCase().includes(myName);
       const isStuckStep=st.status==="In Progress"&&st.parsedDate&&daysBetween(st.parsedDate,today())>=5;
-      const badgeClass=isStuckStep?"badge-stuck":st.status==="Done"?"badge-done":st.status==="In Progress"?"badge-progress":"badge-pending";
-      const badgeText=isStuckStep?`⚠ ${daysBetween(st.parsedDate,today())}d stuck`:st.status==="Done"?"✓ Done":st.status==="In Progress"?"⟳ In Progress":"○ Pending";
-      return `<div class="step-row${isMyStep?" my-step":""}${isStuckStep?" stuck-step":""}">
+      const isHoStep=HO_STEPS.includes(k)&&(st.status==="In Progress"||st.status==="Pending");
+      const cls=isMyStep?" my-step":isStuckStep?" stuck-step":isHoStep?" ho-step":"";
+      const badgeClass=isStuckStep?"sbadge-stuck":isHoStep?"sbadge-ho":st.status==="Done"?"sbadge-done":st.status==="In Progress"?"sbadge-prog":"sbadge-pend";
+      const badgeText=isStuckStep?`⚠ ${daysBetween(st.parsedDate,today())}d`:isHoStep?"🏢 HO":st.status==="Done"?"✓":st.status==="In Progress"?"⟳":"○";
+      return `<div class="step-row${cls}">
         <div class="step-num">${k+1}</div>
-        <div class="step-name-cell${isMyStep?" my-step-text":""}${isStuckStep?" stuck-text":""}">${name}</div>
+        <div class="step-name-cell">${name}</div>
         <div class="step-officer">${st.officer||"—"}</div>
-        <div class="step-status-badge ${badgeClass}">${badgeText}</div>
+        <div class="sbadge ${badgeClass}">${badgeText}</div>
       </div>`;
     }).join("");
-    return `<div class="farmer-card${mine?" has-my-steps":""}${f.isStuck?" is-stuck":""}">
+    const cardClass=`farmer-card${mine?" has-my-steps":""}${f.isStuck?" is-stuck":""}${f.isGovt?" is-govt":""}${f.isHoNeeded&&!f.isGovt?" is-ho-action":""}`;
+    return `<div class="${cardClass}">
       <div class="card-header" onclick="toggleCard(${i})">
-        <div class="status-dot" style="background:${f.isStuck?"#FF4444":sc}"></div>
+        <div class="status-dot" style="background:${sc}"></div>
         <div class="card-info">
           <div class="card-name">${f.owner||"Unknown"}</div>
-          <div class="card-meta">Sy: ${f.syNo} · <span style="color:${vc}">${f.village}</span>${mine?' · <span style="color:#FFD700">⭐ Your steps</span>':''}${f.isStuck?' · <span style="color:#FF4444">⚠ Stuck</span>':''}</div>
+          <div class="card-meta">
+            <span>Sy: ${f.syNo}</span>
+            <span style="color:${vc}">${f.village}</span>
+            ${f.isGovt?'<span class="tag tag-govt">🏛️ GOVT/LEASE</span>':''}
+            ${f.isStuck?'<span class="tag tag-stuck">⚠ STUCK</span>':''}
+            ${mine?'<span class="tag tag-my">⭐ MINE</span>':''}
+            ${f.isHoNeeded&&!f.isGovt?'<span class="tag tag-ho">🏢 HO ACTION</span>':''}
+          </div>
         </div>
         <div class="card-right">
           <div class="card-acres">${f.acres}A</div>
@@ -439,7 +601,7 @@ function renderCards(){
       <div class="progress-bar"><div class="progress-fill" style="width:${prog}%;background:${pc}"></div></div>
       <div class="card-expanded" id="exp-${i}">
         <div class="steps-list">${stepsHtml}</div>
-        <div style="font-size:10px;color:var(--text2);padding:4px 0">${f.status||"Not Started"} · Progress: ${prog}%</div>
+        <div style="font-size:10px;color:var(--text2)">${f.isGovt?"🏛️ GOVT LAND — Lease Process":"Status: "+f.status} · ${prog}% complete</div>
       </div>
     </div>`;
   }).join("");
@@ -447,150 +609,166 @@ function renderCards(){
 
 function toggleCard(i){document.getElementById("exp-"+i).classList.toggle("open");}
 
+// ── GOVT LAND TAB ────────────────────────────────────────────────────────────
+function renderGovtTab(){
+  const govtFiles=allData.filter(f=>f.isGovt);
+  const section=document.getElementById("govt-section");
+  if(!govtFiles.length){
+    section.innerHTML='<div class="empty">No government land entries detected.<br>System checks for keywords: Sarkari, Gomala, Pada, Bhudana, Kharab</div>';
+    return;
+  }
+  const totalAcres=govtFiles.reduce((a,f)=>a+f.acres,0);
+  const byVillage={};
+  govtFiles.forEach(f=>{byVillage[f.village]=(byVillage[f.village]||0)+1;});
+
+  let html=`<div style="background:linear-gradient(135deg,#FF9D0015,#FF9D0005);border:1px solid #FF9D0040;border-radius:10px;padding:14px;margin-bottom:12px">
+    <div style="font-size:9px;color:var(--govt);text-transform:uppercase;letter-spacing:1.5px;font-family:'Space Mono',monospace;margin-bottom:6px">🏛️ Government Land Summary</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div style="background:var(--surface3);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--govt)">${govtFiles.length}</div>
+        <div style="font-size:9px;color:var(--text2);text-transform:uppercase;margin-top:2px">Total Entries</div>
+      </div>
+      <div style="background:var(--surface3);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--govt)">${Math.round(totalAcres)}A</div>
+        <div style="font-size:9px;color:var(--text2);text-transform:uppercase;margin-top:2px">Total Acres</div>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--text2);margin-bottom:6px">Village breakdown: ${Object.entries(byVillage).map(([v,c])=>`<span style="color:${VCOL[v]||'#4A7FA5'}">${v}(${c})</span>`).join(" · ")}</div>
+    <div style="background:#FF9D0015;border:1px solid #FF9D0030;border-radius:6px;padding:8px;font-size:10px;color:#FF9D00;line-height:1.6">
+      ⚠️ These files follow the <strong>Lease Process</strong> — not standard acquisition. Requires separate legal workflow. Contact Revenue Department before proceeding.
+    </div>
+  </div>`;
+
+  html+=govtFiles.map(f=>{
+    const vc=VCOL[f.village]||"#4A7FA5";
+    const kw=GOVT_KW.filter(k=>f.owner.toLowerCase().includes(k));
+    return `<div class="govt-card">
+      <div class="govt-card-header">
+        <span class="govt-badge">🏛️ ${kw[0]?kw[0].toUpperCase():"GOVT LAND"}</span>
+        <div class="govt-name">${f.owner}</div>
+      </div>
+      <div class="govt-meta">
+        <span>Sy No: <strong>${f.syNo}</strong></span>
+        <span style="color:${vc}">${f.village}</span>
+        <span>${f.acres} Acres</span>
+        <span style="color:var(--text3)">${f.source}</span>
+      </div>
+    </div>`;
+  }).join("");
+
+  section.innerHTML=html;
+}
+
 // ── HO REPORT ────────────────────────────────────────────────────────────────
 function generateReport(){
   const section=document.getElementById("report-section");
   section.innerHTML=`<div style="text-align:center;padding:20px;color:var(--text2);font-size:12px">⏳ Generating report...</div>`;
-
   setTimeout(()=>{
     const now=new Date();
     let html="";
-
-    // ── SECTION 1: HEALTH SCORE ──────────────────────────────────────────
     const total=allData.length;
     const registered=allData.filter(f=>f.status.includes("Registered")).length;
     const active=allData.filter(f=>f.status.includes("Active")).length;
     const partial=allData.filter(f=>f.status.includes("Partial")).length;
     const notStarted=allData.filter(f=>f.status.includes("Not Started")).length;
     const stuck=allData.filter(f=>f.isStuck).length;
+    const govtCount=allData.filter(f=>f.isGovt).length;
+    const privateCount=total-govtCount;
     const totalSteps=total*9;
-    const doneSteps=allData.reduce((acc,f)=>acc+f.steps.filter(s=>s.status==="Done").length,0);
+    const doneSteps=allData.reduce((acc,f)=>acc+f.doneCount,0);
     const healthPct=total>0?Math.round((registered/total)*100):0;
     const stepPct=totalSteps>0?Math.round((doneSteps/totalSteps)*100):0;
     const hColor=healthPct>=50?"#00CC6A":healthPct>=25?"#FFD700":"#FF4444";
-
-    // Projected completion — simple linear projection
-    const daysRunning=30; // assume project started 30 days ago
+    const daysRunning=30;
     const rate=doneSteps>0?doneSteps/daysRunning:0;
-    const remainingSteps=totalSteps-doneSteps;
-    const projDays=rate>0?Math.round(remainingSteps/rate):999;
+    const projDays=rate>0?Math.round((totalSteps-doneSteps)/rate):999;
     const projDate=new Date(now.getTime()+projDays*24*60*60*1000);
 
+    // Section 1 — Health
     html+=`<div class="report-card">
-      <div class="report-card-header">
-        <span style="font-size:16px">🏥</span>
-        <div><div class="report-card-title">Overall Health Score</div>
-        <div class="report-card-sub">As of ${now.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div></div>
-      </div>
-      <div class="report-card-body">
-        <div class="health-score-wrap">
+      <div class="rch"><span style="font-size:16px">🏥</span><div><div class="rct">Overall Health Score</div><div class="rcs">${now.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div></div></div>
+      <div class="rcb">
+        <div class="health-wrap">
           <div class="health-circle" style="border-color:${hColor};color:${hColor}">
             <div class="health-num">${healthPct}%</div>
-            <div class="health-label" style="color:${hColor}">Done</div>
+            <div class="health-lbl" style="color:${hColor}">Done</div>
           </div>
-          <div class="health-details">
-            <div class="health-row"><span style="color:var(--green)">✅ Registered</span><span style="color:var(--green);font-weight:700">${registered} / ${total}</span></div>
-            <div class="health-bar"><div class="health-bar-fill" style="width:${healthPct}%;background:var(--green)"></div></div>
-            <div class="health-row" style="margin-top:6px"><span style="color:var(--blue)">🔵 Active</span><span style="font-weight:700;color:var(--blue)">${active}</span></div>
-            <div class="health-row"><span style="color:var(--yellow)">🟡 Partial</span><span style="font-weight:700;color:var(--yellow)">${partial}</span></div>
-            <div class="health-row"><span style="color:var(--red)">⚠ Stuck 5d+</span><span style="font-weight:700;color:var(--red)">${stuck}</span></div>
-            <div class="health-row"><span style="color:var(--text3)">⚪ Not Started</span><span style="font-weight:700;color:var(--text3)">${notStarted}</span></div>
+          <div class="health-rows">
+            <div class="hrow"><span style="color:var(--green)">✅ Registered</span><span style="color:var(--green);font-weight:700">${registered}/${total}</span></div>
+            <div class="hbar"><div class="hbar-fill" style="width:${healthPct}%;background:var(--green)"></div></div>
+            <div class="hrow" style="margin-top:5px"><span style="color:var(--blue)">🔵 Active</span><span style="font-weight:700;color:var(--blue)">${active}</span></div>
+            <div class="hrow"><span style="color:var(--yellow)">🟡 Partial</span><span style="font-weight:700;color:var(--yellow)">${partial}</span></div>
+            <div class="hrow"><span style="color:var(--red)">⚠ Stuck 5d+</span><span style="font-weight:700;color:var(--red)">${stuck}</span></div>
+            <div class="hrow"><span style="color:var(--text3)">⚪ Not Started</span><span style="font-weight:700;color:var(--text3)">${notStarted}</span></div>
+            <div class="hrow"><span style="color:var(--govt)">🏛️ Govt/Lease</span><span style="font-weight:700;color:var(--govt)">${govtCount}</span></div>
           </div>
         </div>
-        <div style="margin-top:12px;padding:10px;background:var(--surface3);border-radius:8px;font-size:11px">
-          <div style="color:var(--text2);margin-bottom:4px">📈 Step Completion</div>
-          <div style="font-family:'Space Mono',monospace;font-size:13px;color:var(--accent);font-weight:700">${doneSteps} / ${totalSteps} steps done (${stepPct}%)</div>
-          <div style="color:var(--text2);font-size:10px;margin-top:4px">Projected completion: <span style="color:var(--accent2);font-weight:700">${projDays<999?projDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):"Data insufficient"}</span></div>
+        <div style="margin-top:10px;padding:9px;background:var(--surface3);border-radius:7px;font-size:11px">
+          <div style="color:var(--text2);margin-bottom:3px">📈 Step Completion — Private files only</div>
+          <div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--accent);font-weight:700">${doneSteps} / ${totalSteps} steps (${stepPct}%)</div>
+          <div style="color:var(--text2);font-size:10px;margin-top:3px">Projected: <span style="color:var(--accent2);font-weight:700">${projDays<999?projDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):"Insufficient data"}</span></div>
         </div>
       </div>
     </div>`;
 
-    // ── SECTION 2: PIPELINE PER STEP ────────────────────────────────────
+    // Section 2 — Pipeline
     const pipeline=STEPS.map((name,s_idx)=>{
-      let done=0,inprog=0,pending=0,stuck=0;
-      allData.forEach(f=>{
+      let done=0,inprog=0,pending=0,stuckC=0;
+      allData.filter(f=>!f.isGovt).forEach(f=>{
         const st=f.steps[s_idx];
         if(st.status==="Done")done++;
-        else if(st.status==="In Progress"){
-          inprog++;
-          if(st.parsedDate&&daysBetween(st.parsedDate,today())>=5)stuck++;
-        }
+        else if(st.status==="In Progress"){inprog++;if(st.parsedDate&&daysBetween(st.parsedDate,today())>=5)stuckC++;}
         else if(st.status==="Pending")pending++;
       });
-      return {name,done,inprog,pending,stuck,total:done+inprog+pending};
+      return{name,done,inprog,pending,stuckC,total:done+inprog+pending};
     });
-
     html+=`<div class="report-card">
-      <div class="report-card-header">
-        <span style="font-size:16px">🔄</span>
-        <div><div class="report-card-title">Pipeline — Files at Each Step</div>
-        <div class="report-card-sub">All ${total} farmers across 9 acquisition steps</div></div>
-      </div>
-      <div class="report-card-body">
-        ${pipeline.map((p,i)=>{
-          const pct=p.total>0?Math.round(p.done/p.total*100):0;
-          return `<div class="pipeline-step">
-            <div class="pipeline-num">${i+1}</div>
-            <div style="flex:1">
-              <div class="pipeline-name">${p.name}</div>
-              <div style="display:flex;gap:3px;margin-top:4px;height:4px">
-                <div style="background:#00CC6A;border-radius:2px;flex:${p.done||0.01}"></div>
-                <div style="background:#FFD700;border-radius:2px;flex:${p.inprog||0.01}"></div>
-                <div style="background:#3A5570;border-radius:2px;flex:${p.pending||0.01}"></div>
-              </div>
+      <div class="rch"><span style="font-size:16px">🔄</span><div><div class="rct">Pipeline — Files at Each Step</div><div class="rcs">Private files only (${privateCount} farmers)</div></div></div>
+      <div class="rcb">
+        ${pipeline.map((p,i)=>`<div class="pipeline-row">
+          <div class="pnum">${i+1}</div>
+          <div style="flex:1">
+            <div class="pname">${p.name}</div>
+            <div style="display:flex;gap:2px;margin-top:3px;height:4px">
+              <div style="background:#00CC6A;border-radius:2px;flex:${p.done||0.01}"></div>
+              <div style="background:#FFD700;border-radius:2px;flex:${p.inprog||0.01}"></div>
+              <div style="background:#3A5570;border-radius:2px;flex:${p.pending||0.01}"></div>
             </div>
-            <div class="pipeline-bars">
-              <span class="pipeline-pill pill-done">✓${p.done}</span>
-              <span class="pipeline-pill pill-prog">⟳${p.inprog}</span>
-              <span class="pipeline-pill pill-pend">○${p.pending}</span>
-              ${p.stuck>0?`<span class="pipeline-pill" style="background:#FF444418;color:#FF4444">⚠${p.stuck}</span>`:''}
-            </div>
-          </div>`;
-        }).join("")}
+          </div>
+          <div class="ppills">
+            <span class="ppill pp-done">✓${p.done}</span>
+            <span class="ppill pp-prog">⟳${p.inprog}</span>
+            <span class="ppill pp-pend">○${p.pending}</span>
+            ${p.stuckC>0?`<span class="ppill pp-stuck">⚠${p.stuckC}</span>`:""}
+          </div>
+        </div>`).join("")}
       </div>
     </div>`;
 
-    // ── SECTION 3: LAST 5 DAYS PROGRESS ─────────────────────────────────
+    // Section 3 — Last 5 Days
     const days5=[];
     for(let d=4;d>=0;d--){
-      const day=new Date(now);
-      day.setDate(now.getDate()-d);
+      const day=new Date(now);day.setDate(now.getDate()-d);
       const dayStr=day.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
       const dayStart=new Date(day.getFullYear(),day.getMonth(),day.getDate());
       const dayEnd=new Date(dayStart.getTime()+86400000);
-      let count=0;
-      const stepCounts={};
-      allData.forEach(f=>{
-        f.steps.forEach((st,s_idx)=>{
-          if(st.parsedDate&&st.parsedDate>=dayStart&&st.parsedDate<dayEnd&&st.status==="Done"){
-            count++;
-            stepCounts[STEPS[s_idx]]=(stepCounts[STEPS[s_idx]]||0)+1;
-          }
-        });
-      });
-      const topSteps=Object.entries(stepCounts).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>`${k}(${v})`).join(", ");
-      days5.push({dayStr,count,topSteps});
+      let count=0;const sc={};
+      allData.forEach(f=>{f.steps.forEach((st,s_idx)=>{if(st.parsedDate&&st.parsedDate>=dayStart&&st.parsedDate<dayEnd&&st.status==="Done"){count++;sc[STEPS[s_idx]]=(sc[STEPS[s_idx]]||0)+1;}});});
+      const top=Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>`${k}(${v})`).join(", ");
+      days5.push({dayStr,count,top});
     }
     html+=`<div class="report-card">
-      <div class="report-card-header">
-        <span style="font-size:16px">📅</span>
-        <div><div class="report-card-title">Last 5 Days — Day-wise Progress</div>
-        <div class="report-card-sub">Steps marked Done each day</div></div>
-      </div>
-      <div class="report-card-body">
-        <table class="day-table">
+      <div class="rch"><span style="font-size:16px">📅</span><div><div class="rct">Last 5 Days — Day-wise Progress</div><div class="rcs">Steps marked Done each day</div></div></div>
+      <div class="rcb">
+        <table class="day-tbl">
           <tr><th>Day</th><th>Steps Done</th><th>Top Steps</th></tr>
-          ${days5.map(d=>`<tr>
-            <td class="day-name">${d.dayStr}</td>
-            <td class="day-count">${d.count||"—"}</td>
-            <td class="day-steps">${d.topSteps||"No activity"}</td>
-          </tr>`).join("")}
+          ${days5.map(d=>`<tr><td style="font-weight:600">${d.dayStr}</td><td style="font-family:'Space Mono',monospace;color:var(--green);font-weight:700">${d.count||"—"}</td><td style="font-size:9px;color:var(--text2)">${d.top||"No activity"}</td></tr>`).join("")}
         </table>
-        <div style="font-size:10px;color:var(--text3);margin-top:8px">* Requires Date Done column to be filled in the sheet</div>
+        <div style="font-size:9px;color:var(--text3);margin-top:7px">* Requires Date Done filled in sheet</div>
       </div>
     </div>`;
 
-    // ── SECTION 4: OFFICER PERFORMANCE ──────────────────────────────────
+    // Section 4 — Officers
     const officers={};
     allData.forEach(f=>{
       f.steps.forEach((st,s_idx)=>{
@@ -599,117 +777,76 @@ function generateReport(){
         if(st.status==="Pending"||st.status==="In Progress"||st.status==="Done"){
           officers[name].assigned++;
           if(st.status==="Done")officers[name].done++;
-          else if(st.status==="In Progress"){
-            officers[name].inprog++;
-            if(st.parsedDate&&daysBetween(st.parsedDate,today())>=5)officers[name].stuck++;
-          }
+          else if(st.status==="In Progress"){officers[name].inprog++;if(st.parsedDate&&daysBetween(st.parsedDate,today())>=5)officers[name].stuck++;}
           else officers[name].pending++;
         }
       });
     });
-
-    const sortedOfficers=Object.entries(officers)
-      .filter(([k])=>k!=="Unassigned")
-      .sort((a,b)=>b[1].done-a[1].done);
-
-    if(sortedOfficers.length>0){
+    const sortedO=Object.entries(officers).filter(([k])=>k!=="Unassigned").sort((a,b)=>b[1].done-a[1].done);
+    if(sortedO.length>0){
       html+=`<div class="report-card">
-        <div class="report-card-header">
-          <span style="font-size:16px">👥</span>
-          <div><div class="report-card-title">Officer Performance</div>
-          <div class="report-card-sub">Assigned → Done → Stuck breakdown</div></div>
-        </div>
-        <div class="report-card-body">
-          <table class="officer-table">
-            <tr><th>Officer</th><th>Assigned</th><th>Done</th><th>In Prog</th><th>Stuck</th><th>Rate</th></tr>
-            ${sortedOfficers.map(([name,o],idx)=>{
+        <div class="rch"><span style="font-size:16px">👥</span><div><div class="rct">Officer Performance</div><div class="rcs">Ranked by steps completed</div></div></div>
+        <div class="rcb">
+          <table class="off-tbl">
+            <tr><th>Officer</th><th>Assgn</th><th>Done</th><th>Stuck</th><th>Rate</th></tr>
+            ${sortedO.map(([name,o],idx)=>{
               const rate=o.assigned>0?Math.round(o.done/o.assigned*100):0;
               const medal=idx===0?"🥇":idx===1?"🥈":idx===2?"🥉":"";
+              const rateColor=rate>=70?"var(--green)":rate>=40?"var(--yellow)":"var(--red)";
               return `<tr>
                 <td>${medal} ${name}</td>
                 <td>${o.assigned}</td>
                 <td style="color:var(--green);font-weight:700">${o.done}</td>
-                <td style="color:var(--yellow)">${o.inprog}</td>
-                <td class="${o.stuck>0?'stuck-count':''}">${o.stuck>0?"⚠"+o.stuck:"—"}</td>
-                <td>
-                  <div style="font-size:10px;color:${rate>=70?"var(--green)":rate>=40?"var(--yellow)":"var(--red)"};font-weight:700">${rate}%</div>
-                  <div class="rate-bar"><div class="rate-fill" style="width:${rate}%"></div></div>
-                </td>
+                <td style="${o.stuck>0?"color:var(--red);font-weight:700":""}">${o.stuck>0?"⚠"+o.stuck:"—"}</td>
+                <td><div style="font-size:10px;color:${rateColor};font-weight:700">${rate}%</div><div class="rate-bar"><div class="rate-fill" style="width:${rate}%;background:${rateColor}"></div></div></td>
               </tr>`;
             }).join("")}
           </table>
+          <div style="margin-top:10px;padding:8px;background:var(--surface3);border-radius:6px">
+            <div style="font-size:10px;font-weight:700;color:var(--red);margin-bottom:5px">⚠ Poor Performers (below 30% completion rate)</div>
+            ${sortedO.filter(([,o])=>o.assigned>0&&(o.done/o.assigned)<0.3).length===0?
+              '<div style="font-size:10px;color:var(--green)">✅ All officers above 30% threshold</div>':
+              sortedO.filter(([,o])=>o.assigned>0&&(o.done/o.assigned)<0.3).map(([name,o])=>{
+                const rate=Math.round(o.done/o.assigned*100);
+                return `<div style="font-size:10px;color:var(--text2);padding:4px 0;border-bottom:1px solid var(--border)">${name} — ${rate}% (${o.done}/${o.assigned}) · Stuck: ${o.stuck}</div>`;
+              }).join("")
+            }
+          </div>
         </div>
       </div>`;
     }
 
-    // ── SECTION 5: STUCK FILES ───────────────────────────────────────────
+    // Section 5 — Stuck Files
     const stuckFiles=allData.filter(f=>f.isStuck);
     html+=`<div class="report-card">
-      <div class="report-card-header">
-        <span style="font-size:16px">🚨</span>
-        <div><div class="report-card-title">Stuck Files — Action Required</div>
-        <div class="report-card-sub">${stuckFiles.length} file${stuckFiles.length!==1?"s":""} stuck at same step for 5+ days</div></div>
-      </div>
-      <div class="report-card-body">
+      <div class="rch"><span style="font-size:16px">🚨</span><div><div class="rct">Stuck Files — Action Required</div><div class="rcs">${stuckFiles.length} file${stuckFiles.length!==1?"s":""} stuck 5+ days</div></div></div>
+      <div class="rcb">
         ${stuckFiles.length===0?
-          '<div style="color:var(--green);font-size:12px;text-align:center;padding:10px">✅ No stuck files — all files moving</div>':
+          '<div style="color:var(--green);font-size:12px;text-align:center;padding:10px">✅ No stuck files</div>':
           stuckFiles.map(f=>{
             const stuckDetails=f.stuckSteps.map(st=>{
               const s_idx=f.steps.indexOf(st);
               const days=st.parsedDate?daysBetween(st.parsedDate,today()):0;
-              return `Step ${s_idx+1}: ${STEPS[s_idx]} (${days}d, ${st.officer||"No officer"})`;
-            }).join(" · ");
-            return `<div class="stuck-file-row">
-              <div class="stuck-file-name">${f.owner}</div>
-              <div class="stuck-file-meta">
-                <span>Sy: ${f.syNo}</span>
-                <span style="color:${VCOL[f.village]||"#4A7FA5"}">${f.village}</span>
-                <span class="stuck-tag">${stuckDetails}</span>
-              </div>
+              return `Step ${s_idx+1}:${STEPS[s_idx]} · ${days}d · ${st.officer||"No officer"}`;
+            }).join(" | ");
+            return `<div class="stuck-row">
+              <div class="stuck-name">${f.owner}</div>
+              <div class="stuck-meta"><span>Sy:${f.syNo}</span><span style="color:${VCOL[f.village]||'#4A7FA5'}">${f.village}</span><span style="color:var(--red)">${stuckDetails}</span></div>
             </div>`;
           }).join("")
         }
       </div>
     </div>`;
 
-    // ── SECTION 6: VILLAGE SUMMARY ───────────────────────────────────────
-    const vm={};
-    allData.forEach(f=>{
-      const v=f.village||"Unknown";
-      if(!vm[v])vm[v]={total:0,registered:0,active:0,partial:0,notStarted:0,stuck:0,totalSteps:0,doneSteps:0};
-      vm[v].total++;
-      vm[v].totalSteps+=9;
-      vm[v].doneSteps+=f.steps.filter(s=>s.status==="Done").length;
-      if(f.status.includes("Registered"))vm[v].registered++;
-      else if(f.status.includes("Active"))vm[v].active++;
-      else if(f.status.includes("Partial"))vm[v].partial++;
-      else vm[v].notStarted++;
-      if(f.isStuck)vm[v].stuck++;
-    });
+    // Section 6 — Govt land in report
     html+=`<div class="report-card">
-      <div class="report-card-header">
-        <span style="font-size:16px">📍</span>
-        <div><div class="report-card-title">Village-wise Summary</div>
-        <div class="report-card-sub">Registration progress per village</div></div>
-      </div>
-      <div class="report-card-body">
-        ${Object.entries(vm).map(([v,s])=>{
-          const vc=VCOL[v]||"#4A7FA5";
-          const pct=s.totalSteps>0?Math.round(s.doneSteps/s.totalSteps*100):0;
-          return `<div style="margin-bottom:12px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-              <span style="font-size:12px;font-weight:700;color:${vc}">📍 ${v}</span>
-              <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--accent)">${pct}%</span>
-            </div>
-            <div style="display:flex;gap:3px;height:6px;margin-bottom:5px">
-              <div style="background:#00CC6A;border-radius:3px;flex:${s.registered||0.01}"></div>
-              <div style="background:#00A8FF;border-radius:3px;flex:${s.active||0.01}"></div>
-              <div style="background:#FFD700;border-radius:3px;flex:${s.partial||0.01}"></div>
-              <div style="background:#3A5570;border-radius:3px;flex:${s.notStarted||0.01}"></div>
-            </div>
-            <div style="font-size:9px;color:var(--text2)">${s.total} farmers · ✅${s.registered} · 🔵${s.active} · 🟡${s.partial} · ⚪${s.notStarted}${s.stuck>0?` · <span style="color:var(--red)">⚠${s.stuck} stuck</span>`:""}</div>
-          </div>`;
-        }).join("")}
+      <div class="rch"><span style="font-size:16px">🏛️</span><div><div class="rct">Government / Lease Land Summary</div><div class="rcs">${govtCount} entries identified</div></div></div>
+      <div class="rcb">
+        ${govtCount===0?
+          '<div style="font-size:11px;color:var(--text2)">No government land entries detected</div>':
+          `<div style="font-size:11px;color:var(--govt);margin-bottom:8px">${govtCount} entries (${Math.round(allData.filter(f=>f.isGovt).reduce((a,f)=>a+f.acres,0))} acres) require Lease Process — not standard acquisition</div>
+          ${allData.filter(f=>f.isGovt).map(f=>`<div style="font-size:10px;padding:4px 0;border-bottom:1px solid var(--border);color:var(--text2)">${f.owner} · Sy:${f.syNo} · <span style="color:${VCOL[f.village]||'#4A7FA5'}">${f.village}</span> · ${f.acres}A</div>`).join("")}`
+        }
       </div>
     </div>`;
 
@@ -724,10 +861,8 @@ function renderOfficers(){
       const name=st.officer&&st.officer.trim()?st.officer.trim():"Unassigned";
       if(!officers[name])officers[name]={steps:{}};
       if(!officers[name].steps[s_idx])officers[name].steps[s_idx]={done:0,pending:0,inprog:0};
-      const entry=officers[name].steps[s_idx];
-      if(st.status==="Done")entry.done++;
-      else if(st.status==="In Progress")entry.inprog++;
-      else if(st.status==="Pending")entry.pending++;
+      const e=officers[name].steps[s_idx];
+      if(st.status==="Done")e.done++;else if(st.status==="In Progress")e.inprog++;else if(st.status==="Pending")e.pending++;
     });
   });
   const section=document.getElementById("officer-section");
@@ -739,29 +874,21 @@ function renderOfficers(){
       let td=0,tp=0,ti=0;
       Object.values(me.steps).forEach(s=>{td+=s.done;tp+=s.pending;ti+=s.inprog;});
       const stepBreakdown=Object.entries(me.steps).map(([s_idx,s])=>{
-        const total=s.done+s.pending+s.inprog;
-        const pct=total>0?Math.round(s.done/total*100):0;
-        return `<div class="sbd-row">
-          <div class="sbd-name">Step ${parseInt(s_idx)+1}: ${STEPS[s_idx]}</div>
-          <div class="sbd-done">✓${s.done}</div>
-          <div class="sbd-pending">○${s.pending}</div>
-          <div class="sbd-bar"><div class="sbd-bar-fill" style="width:${pct}%"></div></div>
-        </div>`;
+        const tot=s.done+s.pending+s.inprog;const pct=tot>0?Math.round(s.done/tot*100):0;
+        return `<div class="sbd-row"><div class="sbd-name">S${parseInt(s_idx)+1}: ${STEPS[s_idx]}</div><div class="sbd-done">✓${s.done}</div><div class="sbd-pend">○${s.pending}</div><div class="sbd-bar"><div class="sbd-fill" style="width:${pct}%"></div></div></div>`;
       }).join("");
-      html+=`<div class="my-officer-card">
-        <div class="my-officer-label">⭐ Your Performance</div>
-        <div class="my-officer-name">${myKey}</div>
-        <div class="my-stats-grid">
-          <div class="mstat"><div class="mstat-val" style="color:var(--accent)">${td+tp+ti}</div><div class="mstat-label">Total</div></div>
-          <div class="mstat"><div class="mstat-val" style="color:var(--green)">${td}</div><div class="mstat-label">Done</div></div>
-          <div class="mstat"><div class="mstat-val" style="color:var(--yellow)">${ti}</div><div class="mstat-label">In Prog</div></div>
-          <div class="mstat"><div class="mstat-val" style="color:var(--text3)">${tp}</div><div class="mstat-label">Pending</div></div>
+      html+=`<div class="my-perf-card"><div class="my-perf-lbl">⭐ Your Performance</div><div class="my-perf-name">${myKey}</div>
+        <div class="my-stats">
+          <div class="mst"><div class="mst-val" style="color:var(--accent)">${td+tp+ti}</div><div class="mst-lbl">Total</div></div>
+          <div class="mst"><div class="mst-val" style="color:var(--green)">${td}</div><div class="mst-lbl">Done</div></div>
+          <div class="mst"><div class="mst-val" style="color:var(--yellow)">${ti}</div><div class="mst-lbl">In Prog</div></div>
+          <div class="mst"><div class="mst-val" style="color:var(--text3)">${tp}</div><div class="mst-lbl">Pending</div></div>
         </div>
         <div class="sbd-title">Step-wise Breakdown</div>
-        <div class="step-breakdown">${stepBreakdown}</div>
+        <div class="sbd">${stepBreakdown}</div>
       </div>`;
     }else{
-      html+=`<div class="my-officer-card"><div class="my-officer-label">⭐ Your Performance</div><div style="font-size:12px;color:var(--text2);margin-top:8px">No steps assigned to "${myName}" yet.</div></div>`;
+      html+=`<div class="my-perf-card"><div class="my-perf-lbl">⭐ Your Performance</div><div style="font-size:12px;color:var(--text2);margin-top:8px">No steps assigned to "${myName}" yet.</div></div>`;
     }
   }
   const sorted=Object.entries(officers).filter(([k])=>k!=="Unassigned").map(([name,data])=>{
@@ -769,19 +896,19 @@ function renderOfficers(){
     Object.values(data.steps).forEach(s=>{done+=s.done;pending+=s.pending;inprog+=s.inprog;});
     return{name,done,pending,inprog,total:done+pending+inprog};
   }).sort((a,b)=>b.done-a.done);
-  if(sorted.length===0){html+='<div class="empty">No officers assigned yet.<br>Update officer names in the Google Sheet.</div>';}
+  if(!sorted.length){html+='<div class="empty">No officers assigned yet.<br>Update officer names in the Google Sheet.</div>';}
   else{
-    html+=`<div class="all-officers-title">All Officers — Leaderboard</div>`;
+    html+=`<div class="all-off-title">All Officers — Leaderboard</div>`;
     html+=sorted.map(o=>{
       const pct=o.total>0?Math.round(o.done/o.total*100):0;
-      const badge=pct>=70?'<span class="officer-badge badge-star">⭐ Top</span>':o.inprog>5?'<span class="officer-badge badge-good">✓ Active</span>':o.pending>10?'<span class="officer-badge badge-warn">⚠ Follow Up</span>':'';
-      return `<div class="officer-card">
-        <div class="officer-name-row"><div class="officer-name">${o.name}</div>${badge}</div>
-        <div class="officer-stats">
-          <div class="ostat"><div class="ostat-val" style="color:var(--accent)">${o.total}</div><div class="ostat-label">Steps</div></div>
-          <div class="ostat"><div class="ostat-val" style="color:var(--green)">${o.done}</div><div class="ostat-label">Done</div></div>
-          <div class="ostat"><div class="ostat-val" style="color:var(--yellow)">${o.inprog}</div><div class="ostat-label">In Prog</div></div>
-          <div class="ostat"><div class="ostat-val" style="color:var(--text3)">${o.pending}</div><div class="ostat-label">Pending</div></div>
+      const badge=pct>=70?'<span class="off-badge ob-star">⭐ Top</span>':o.inprog>5?'<span class="off-badge ob-good">✓ Active</span>':pct<30&&o.total>5?'<span class="off-badge ob-warn">⚠ Follow Up</span>':'';
+      return `<div class="off-card">
+        <div class="off-name-row"><div class="off-name">${o.name}</div>${badge}</div>
+        <div class="off-stats">
+          <div class="ost"><div class="ost-val" style="color:var(--accent)">${o.total}</div><div class="ost-lbl">Steps</div></div>
+          <div class="ost"><div class="ost-val" style="color:var(--green)">${o.done}</div><div class="ost-lbl">Done</div></div>
+          <div class="ost"><div class="ost-val" style="color:var(--yellow)">${o.inprog}</div><div class="ost-lbl">In Prog</div></div>
+          <div class="ost"><div class="ost-val" style="color:var(--text3)">${o.pending}</div><div class="ost-lbl">Pending</div></div>
         </div>
       </div>`;
     }).join("");
@@ -793,8 +920,9 @@ function renderVillages(){
   const vm={};
   allData.forEach(f=>{
     const v=f.village||"Unknown";
-    if(!vm[v])vm[v]={total:0,done:0,active:0,partial:0,notstarted:0,acres:0};
+    if(!vm[v])vm[v]={total:0,done:0,active:0,partial:0,notstarted:0,acres:0,govt:0};
     vm[v].total++;vm[v].acres+=f.acres;
+    if(f.isGovt)vm[v].govt++;
     if(f.status.includes("Registered"))vm[v].done++;
     else if(f.status.includes("Active"))vm[v].active++;
     else if(f.status.includes("Partial"))vm[v].partial++;
@@ -803,15 +931,15 @@ function renderVillages(){
   document.getElementById("village-section").innerHTML=Object.entries(vm).map(([v,s])=>{
     const vc=VCOL[v]||"#4A7FA5";
     const segs=[{c:s.done,col:"#00CC6A"},{c:s.active,col:"#00A8FF"},{c:s.partial,col:"#FFD700"},{c:s.notstarted,col:"#3A5570"}].filter(x=>x.c>0);
-    return `<div class="village-card">
-      <div class="village-name" style="color:${vc}">📍 ${v}</div>
-      <div class="village-sub">${s.total} farmers · ${Math.round(s.acres)} acres total</div>
-      <div class="village-progress">${segs.map(sg=>`<div class="vprog-seg" style="background:${sg.col};flex:${sg.c}"></div>`).join("")}</div>
-      <div class="village-legend">
-        <div class="vleg-item"><div class="vleg-dot" style="background:#00CC6A"></div>Registered: ${s.done}</div>
-        <div class="vleg-item"><div class="vleg-dot" style="background:#00A8FF"></div>Active: ${s.active}</div>
-        <div class="vleg-item"><div class="vleg-dot" style="background:#FFD700"></div>Partial: ${s.partial}</div>
-        <div class="vleg-item"><div class="vleg-dot" style="background:#3A5570"></div>Not Started: ${s.notstarted}</div>
+    return `<div class="vcrd">
+      <div class="vname" style="color:${vc}">📍 ${v}</div>
+      <div class="vsub">${s.total} farmers · ${Math.round(s.acres)} acres${s.govt>0?` · <span style="color:var(--govt)">🏛️ ${s.govt} govt</span>`:""}</div>
+      <div class="vprog">${segs.map(sg=>`<div class="vseg" style="background:${sg.col};flex:${sg.c}"></div>`).join("")}</div>
+      <div class="vleg">
+        <div class="vleg-i"><div class="vleg-d" style="background:#00CC6A"></div>Reg: ${s.done}</div>
+        <div class="vleg-i"><div class="vleg-d" style="background:#00A8FF"></div>Active: ${s.active}</div>
+        <div class="vleg-i"><div class="vleg-d" style="background:#FFD700"></div>Partial: ${s.partial}</div>
+        <div class="vleg-i"><div class="vleg-d" style="background:#3A5570"></div>Not Started: ${s.notstarted}</div>
       </div>
     </div>`;
   }).join("");
@@ -820,7 +948,7 @@ function renderVillages(){
 function switchTab(tab,el){
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   el.classList.add("active");
-  ["farmers","report","officers","villages"].forEach(t=>{
+  ["farmers","report","officers","villages","govt"].forEach(t=>{
     document.getElementById("tab-"+t).style.display=t===tab?"block":"none";
   });
 }

@@ -81,7 +81,7 @@ function App(){
       const rc=STEPS.filter(s=>remarks[s.id]&&remarks[s.id].trim()).length;
       data["Summary"]=vc+" steps voted | "+rc+" steps with remarks";
       const res=await fetch(FORMSPREE_URL,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(data)});
-      if(res.ok)setSubmitted(true);
+      if(res.ok){setTimeout(()=>{setVotes({});setRemarks({});setReviewerName("");setSubmitted(false);setShowSummary(false);},3000);setSubmitted(true);}
       else setSubmitError("Submission failed. Please try again.");
     }catch(e){setSubmitError("Network error. Check internet and try again.");}
     setSubmitting(false);

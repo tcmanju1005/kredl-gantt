@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KREDL Land Acquisition Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#060E1A;--surface:#0D1B2A;--surface2:#132336;--surface3:#1A2F44;
+  --accent:#00D4FF;--accent2:#00FF9D;--accent3:#FF6B35;--accent4:#FFD700;
+  --text:#E8F4FD;--text2:#7A9BB5;--text3:#3A5570;
+  --red:#FF4444;--orange:#FF8C00;--yellow:#FFD700;--green:#00CC6A;--blue:#00A8FF;
+  --border:rgba(0,212,255,0.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);z-index:100}
+
+/* HEADER */
+.header{padding:20px 20px 0;display:flex;flex-direction:column;gap:4px}
+.header-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.logo{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:3px;text-transform:uppercase}
+.title{font-size:22px;font-weight:700;color:var(--text);line-height:1.2}
+.subtitle{font-size:11px;color:var(--text2);letter-spacing:1px}
+.last-updated{font-family:'Space Mono',monospace;font-size:9px;color:var(--text3);margin-top:2px}
+
+/* LOADING */
+#loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px}
+.spinner{width:40px;height:40px;border:2px solid var(--surface3);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:2px}
+
+/* ERROR */
+#error-box{display:none;margin:20px;padding:16px;background:#FF444412;border:1px solid #FF444433;border-radius:8px;font-size:12px;color:#FF8888;line-height:1.6}
+
+/* STATS BAR */
+.stats-bar{display:flex;gap:10px;padding:16px 20px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.stat-card{flex:1;min-width:90px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:4px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat-card.total::before{background:var(--accent)}
+.stat-card.active::before{background:var(--blue)}
+.stat-card.delayed::before{background:var(--red)}
+.stat-card.done::before{background:var(--green)}
+.stat-card.review::before{background:var(--yellow)}
+.stat-val{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--text)}
+.stat-card.delayed .stat-val{color:var(--red)}
+.stat-card.done .stat-val{color:var(--green)}
+.stat-card.review .stat-val{color:var(--yellow)}
+.stat-label{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+
+/* TABS */
+.tabs{display:flex;gap:4px;padding:0 20px;margin-bottom:4px;overflow-x:auto}
+.tab{padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid transparent;white-space:nowrap;transition:all 0.2s}
+.tab.active{background:var(--accent);color:#000;border-color:var(--accent)}
+.tab:not(.active){background:var(--surface);color:var(--text2);border-color:var(--border)}
+
+/* FILTERS */
+.filters{display:flex;gap:8px;padding:8px 20px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.filter-btn{padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);white-space:nowrap;transition:all 0.15s}
+.filter-btn.active{background:var(--surface3);color:var(--text);border-color:var(--accent)}
+
+/* SEARCH */
+.search-bar{margin:8px 20px;position:relative}
+.search-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px 10px 36px;font-size:12px;color:var(--text);outline:none;font-family:'DM Sans',sans-serif}
+.search-input::placeholder{color:var(--text3)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px}
+
+/* FARMER CARDS */
+.cards-container{padding:8px 20px 20px;display:flex;flex-direction:column;gap:8px}
+.farmer-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color 0.15s}
+.farmer-card:active{transform:scale(0.99)}
+.card-header{display:flex;align-items:center;gap:10px;padding:12px}
+.status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.card-info{flex:1;min-width:0}
+.card-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-meta{font-size:10px;color:var(--text2);margin-top:2px}
+.card-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.card-acres{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);font-weight:700}
+.card-stage{font-size:9px;color:var(--text3);text-align:right;max-width:100px}
+
+/* PROGRESS BAR */
+.progress-bar{height:3px;background:var(--surface3);margin:0 12px 10px}
+.progress-fill{height:100%;border-radius:2px;transition:width 0.3s}
+
+/* EXPANDED CARD */
+.card-expanded{display:none;padding:12px;border-top:1px solid var(--border);background:var(--surface2)}
+.card-expanded.open{display:block}
+.steps-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.step-item{background:var(--surface3);border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}
+.step-name{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px}
+.step-status{font-size:11px;font-weight:600}
+.step-status.done{color:var(--green)}
+.step-status.in-progress{color:var(--yellow)}
+.step-status.pending{color:var(--text3)}
+.card-detail-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px}
+.card-detail-row:last-child{border-bottom:none}
+.detail-label{color:var(--text2)}
+.detail-val{color:var(--text);font-weight:600}
+
+/* OFFICER TAB */
+.officer-cards{padding:8px 20px 20px;display:flex;flex-direction:column;gap:10px}
+.officer-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px}
+.officer-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.officer-badge{font-size:9px;padding:2px 8px;border-radius:10px;font-weight:600}
+.badge-star{background:#FFD70020;color:#FFD700;border:1px solid #FFD70040}
+.badge-good{background:#00CC6A20;color:#00CC6A;border:1px solid #00CC6A40}
+.badge-slow{background:#FF444420;color:#FF4444;border:1px solid #FF444440}
+.officer-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.ostat{background:var(--surface3);border-radius:6px;padding:8px;text-align:center}
+.ostat-val{font-family:'Space Mono',monospace;font-size:16px;font-weight:700}
+.ostat-label{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+
+/* VILLAGE TAB */
+.village-cards{padding:8px 20px 20px;display:flex;flex-direction:column;gap:10px}
+.village-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px}
+.village-name{font-size:14px;font-weight:700;margin-bottom:10px}
+.village-progress{display:flex;gap:3px;margin-bottom:8px}
+.vprog-seg{height:8px;border-radius:4px;flex:1;min-width:4px}
+.village-legend{display:flex;gap:12px;flex-wrap:wrap}
+.vleg-item{font-size:10px;color:var(--text2);display:flex;align-items:center;gap:4px}
+.vleg-dot{width:8px;height:8px;border-radius:50%}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:12px}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="logo">KREDL · Pavagada · 2GW Solar + 1GWh BESS</div>
+      <div class="title">Land Acquisition Dashboard</div>
+      <div class="subtitle">Ryapte Gram Panchayat · Tumkur District · GO No. Energy 178 VSS 2025</div>
+    </div>
+  </div>
+  <div class="last-updated" id="last-updated">Loading data...</div>
+</div>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text">Fetching live data...</div>
+</div>
+
+<div id="error-box"></div>
+
+<div id="dashboard" style="display:none">
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-card total"><div class="stat-val" id="s-total">0</div><div class="stat-label">Total Farmers</div></div>
+    <div class="stat-card active"><div class="stat-val" id="s-active">0</div><div class="stat-label">Active</div></div>
+    <div class="stat-card review"><div class="stat-val" id="s-review">0</div><div class="stat-label">Review</div></div>
+    <div class="stat-card delayed"><div class="stat-val" id="s-delayed">0</div><div class="stat-label">Delayed</div></div>
+    <div class="stat-card done"><div class="stat-val" id="s-done">0</div><div class="stat-label">Registered</div></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('farmers',this)">Farmers</div>
+    <div class="tab" onclick="switchTab('officers',this)">Officers</div>
+    <div class="tab" onclick="switchTab('villages',this)">Villages</div>
+  </div>
+
+  <!-- FARMERS TAB -->
+  <div id="tab-farmers">
+    <div class="filters" id="village-filters"></div>
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="search" placeholder="Search by name, survey no, village..." oninput="renderCards()"/>
+    </div>
+    <div class="cards-container" id="cards"></div>
+  </div>
+
+  <!-- OFFICERS TAB -->
+  <div id="tab-officers" style="display:none">
+    <div class="officer-cards" id="officer-cards"></div>
+  </div>
+
+  <!-- VILLAGES TAB -->
+  <div id="tab-villages" style="display:none">
+    <div class="village-cards" id="village-cards"></div>
+  </div>
+</div>
+
+<script>
+const SHEET_ID = "1AxoPfcJsXH2sxyD3oVswWGL5cYkQ7Sce";
+const SHEET_NAME = "Master Land Records";
+const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+const STEPS = ["EOI + Docs","Scrutiny","Affidavit","Conversion Upload","HO Payment 1","DC Verification","Kaveri 2.0 Upload","HO Payment 2","Registration"];
+const STATUS_COLORS = {"🟢 Complete":"#00CC6A","🔵 Active":"#00A8FF","🟡 Review":"#FFD700","🔴 Delayed":"#FF4444","⚪ Not Started":"#3A5570"};
+const VILLAGE_COLORS = {"Ryapte":"#2E86AB","Thirumani":"#A23B72","Husenpura":"#1B6B3A","Nagenahalli":"#F18F01","Reddyvarihalli":"#C73E1D"};
+
+let allData = [];
+let activeVillage = "All";
+
+async function loadData(){
+  try{
+    const res = await fetch(URL);
+    const text = await res.text();
+    const json = JSON.parse(text.replace(/^[^(]+\(/, "").replace(/\);?\s*$/, ""));
+    const rows = json.table.rows;
+    allData = [];
+    for(let i=0; i<rows.length; i++){
+      const r = rows[i];
+      if(!r.c || !r.c[0] || !r.c[0].v) continue;
+      const get = (idx) => r.c[idx] ? (r.c[idx].v !== null && r.c[idx].v !== undefined ? String(r.c[idx].v) : "") : "";
+      const farmer = {
+        sl: get(0), source: get(1), village: get(2), syNo: get(3),
+        owner: get(4), acres: parseFloat(get(5))||0,
+        officer: get(9), dateStarted: get(10),
+        steps: STEPS.map((_,k) => get(11+k)),
+        currentStage: get(20), daysElapsed: get(21), status: get(22)
+      };
+      allData.push(farmer);
+    }
+    updateStats();
+    buildVillageFilters();
+    renderCards();
+    renderOfficers();
+    renderVillages();
+    document.getElementById("loading").style.display="none";
+    document.getElementById("dashboard").style.display="block";
+    document.getElementById("last-updated").textContent = "Last updated: " + new Date().toLocaleTimeString("en-IN");
+  }catch(e){
+    document.getElementById("loading").style.display="none";
+    const eb = document.getElementById("error-box");
+    eb.style.display="block";
+    eb.innerHTML = `<strong>Could not load data.</strong><br>Make sure the Google Sheet is shared as "Anyone with the link can view".<br><br>Error: ${e.message}<br><br>Sheet ID: ${SHEET_ID}`;
+  }
+}
+
+function updateStats(){
+  const counts = {total:allData.length, active:0, review:0, delayed:0, done:0};
+  allData.forEach(f=>{
+    const s = f.status;
+    if(s.includes("Complete")) counts.done++;
+    else if(s.includes("Delayed")) counts.delayed++;
+    else if(s.includes("Review")) counts.review++;
+    else if(s.includes("Active")) counts.active++;
+  });
+  ["total","active","review","delayed","done"].forEach(k=>{
+    document.getElementById("s-"+k).textContent = counts[k];
+  });
+}
+
+function buildVillageFilters(){
+  const villages = ["All", ...new Set(allData.map(f=>f.village).filter(Boolean))];
+  const container = document.getElementById("village-filters");
+  container.innerHTML = villages.map(v=>
+    `<div class="filter-btn ${v===activeVillage?'active':''}" onclick="setVillage('${v}',this)">${v}</div>`
+  ).join("");
+}
+
+function setVillage(v,el){
+  activeVillage = v;
+  document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
+  el.classList.add("active");
+  renderCards();
+}
+
+function getStatusColor(status){
+  for(const [k,v] of Object.entries(STATUS_COLORS)){
+    if(status.includes(k.replace(/[🟢🔵🟡🔴⚪]/g,"").trim())) return v;
+  }
+  return "#3A5570";
+}
+
+function getProgress(steps){
+  const done = steps.filter(s=>s==="Done").length;
+  return Math.round((done/9)*100);
+}
+
+function renderCards(){
+  const search = document.getElementById("search").value.toLowerCase();
+  let filtered = allData.filter(f=>{
+    const matchVillage = activeVillage==="All" || f.village===activeVillage;
+    const matchSearch = !search || f.owner.toLowerCase().includes(search) || f.syNo.toLowerCase().includes(search) || f.village.toLowerCase().includes(search) || (f.officer&&f.officer.toLowerCase().includes(search));
+    return matchVillage && matchSearch;
+  });
+
+  const container = document.getElementById("cards");
+  if(!filtered.length){
+    container.innerHTML = '<div class="empty">No farmers found</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map((f,i)=>{
+    const prog = getProgress(f.steps);
+    const progColor = prog===100?"#00CC6A":prog>50?"#00A8FF":prog>0?"#FFD700":"#3A5570";
+    const vc = VILLAGE_COLORS[f.village]||"#4A7FA5";
+    const statusColor = Object.entries(STATUS_COLORS).find(([k])=>f.status.includes(k.replace(/[🟢🔵🟡🔴⚪]/g,"").trim()))?.[1]||"#3A5570";
+    const stepsHtml = STEPS.map((s,k)=>`
+      <div class="step-item">
+        <div class="step-name">Step ${k+1}: ${s}</div>
+        <div class="step-status ${f.steps[k]==='Done'?'done':f.steps[k]==='In Progress'?'in-progress':'pending'}">
+          ${f.steps[k]==='Done'?'✓ Done':f.steps[k]==='In Progress'?'⟳ In Progress':'○ Pending'}
+        </div>
+      </div>`).join("");
+
+    return `
+    <div class="farmer-card" id="card-${i}" onclick="toggleCard(${i})">
+      <div class="card-header">
+        <div class="status-dot" style="background:${statusColor}"></div>
+        <div class="card-info">
+          <div class="card-name">${f.owner||"Unknown"}</div>
+          <div class="card-meta">Sy No: ${f.syNo} &nbsp;·&nbsp; <span style="color:${vc}">${f.village}</span> &nbsp;·&nbsp; ${f.source}</div>
+        </div>
+        <div class="card-right">
+          <div class="card-acres">${f.acres}A</div>
+          <div class="card-stage">${prog}% done</div>
+        </div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${prog}%;background:${progColor}"></div></div>
+      <div class="card-expanded" id="exp-${i}">
+        <div class="steps-grid">${stepsHtml}</div>
+        <div class="card-detail-row"><span class="detail-label">Assigned Officer</span><span class="detail-val">${f.officer||"—"}</span></div>
+        <div class="card-detail-row"><span class="detail-label">Date Started</span><span class="detail-val">${f.dateStarted||"—"}</span></div>
+        <div class="card-detail-row"><span class="detail-label">Days Elapsed</span><span class="detail-val">${f.daysElapsed||"—"}</span></div>
+        <div class="card-detail-row"><span class="detail-label">Status</span><span class="detail-val" style="color:${statusColor}">${f.status||"Not Started"}</span></div>
+        <div class="card-detail-row"><span class="detail-label">Remarks</span><span class="detail-val">${allData[allData.indexOf(f)]?.remarks||"—"}</span></div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function toggleCard(i){
+  const exp = document.getElementById("exp-"+i);
+  exp.classList.toggle("open");
+}
+
+function renderOfficers(){
+  const officerMap = {};
+  allData.forEach(f=>{
+    const name = f.officer && f.officer.trim() ? f.officer.trim() : "Unassigned";
+    if(!officerMap[name]) officerMap[name]={files:0,done:0,active:0,delayed:0,totalDays:0,dayCount:0};
+    officerMap[name].files++;
+    if(f.status.includes("Complete")) officerMap[name].done++;
+    else if(f.status.includes("Delayed")) officerMap[name].delayed++;
+    else if(f.status.includes("Active")) officerMap[name].active++;
+    const days = parseInt(f.daysElapsed)||0;
+    if(days>0){officerMap[name].totalDays+=days;officerMap[name].dayCount++;}
+  });
+
+  const sorted = Object.entries(officerMap).sort((a,b)=>b[1].done-a[1].done);
+  const container = document.getElementById("officer-cards");
+
+  if(sorted.length===1 && sorted[0][0]==="Unassigned"){
+    container.innerHTML='<div class="empty">No officers assigned yet.<br>Update the Google Sheet with officer names to see performance here.</div>';
+    return;
+  }
+
+  container.innerHTML = sorted.map(([name,s])=>{
+    const avgDays = s.dayCount>0?Math.round(s.totalDays/s.dayCount):0;
+    const doneRate = s.files>0?Math.round((s.done/s.files)*100):0;
+    const badge = doneRate>=50?'<span class="officer-badge badge-star">⭐ Top Performer</span>':s.delayed>2?'<span class="officer-badge badge-slow">⚠ Needs Followup</span>':'<span class="officer-badge badge-good">✓ On Track</span>';
+    return `
+    <div class="officer-card">
+      <div class="officer-name">${name} ${name!=="Unassigned"?badge:""}</div>
+      <div class="officer-stats">
+        <div class="ostat"><div class="ostat-val" style="color:#00A8FF">${s.files}</div><div class="ostat-label">Assigned</div></div>
+        <div class="ostat"><div class="ostat-val" style="color:#00CC6A">${s.done}</div><div class="ostat-label">Done</div></div>
+        <div class="ostat"><div class="ostat-val" style="color:#FF4444">${s.delayed}</div><div class="ostat-label">Delayed</div></div>
+        <div class="ostat"><div class="ostat-val" style="color:#FFD700">${avgDays||"—"}</div><div class="ostat-label">Avg Days</div></div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderVillages(){
+  const villageMap = {};
+  allData.forEach(f=>{
+    const v = f.village||"Unknown";
+    if(!villageMap[v]) villageMap[v]={total:0,done:0,active:0,delayed:0,review:0,notStarted:0,acres:0};
+    villageMap[v].total++;
+    villageMap[v].acres+=f.acres;
+    if(f.status.includes("Complete")) villageMap[v].done++;
+    else if(f.status.includes("Delayed")) villageMap[v].delayed++;
+    else if(f.status.includes("Review")) villageMap[v].review++;
+    else if(f.status.includes("Active")) villageMap[v].active++;
+    else villageMap[v].notStarted++;
+  });
+
+  const container = document.getElementById("village-cards");
+  container.innerHTML = Object.entries(villageMap).map(([v,s])=>{
+    const vc = VILLAGE_COLORS[v]||"#4A7FA5";
+    const segments = [
+      {count:s.done,color:"#00CC6A"},{count:s.active,color:"#00A8FF"},
+      {count:s.review,color:"#FFD700"},{count:s.delayed,color:"#FF4444"},
+      {count:s.notStarted,color:"#3A5570"}
+    ].filter(x=>x.count>0);
+
+    return `
+    <div class="village-card">
+      <div class="village-name" style="color:${vc}">📍 ${v}</div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:10px">${s.total} farmers · ${Math.round(s.acres)} acres total</div>
+      <div class="village-progress">${segments.map(sg=>`<div class="vprog-seg" style="background:${sg.color};flex:${sg.count}" title="${sg.count}"></div>`).join("")}</div>
+      <div class="village-legend">
+        <div class="vleg-item"><div class="vleg-dot" style="background:#00CC6A"></div>Done: ${s.done}</div>
+        <div class="vleg-item"><div class="vleg-dot" style="background:#00A8FF"></div>Active: ${s.active}</div>
+        <div class="vleg-item"><div class="vleg-dot" style="background:#FFD700"></div>Review: ${s.review}</div>
+        <div class="vleg-item"><div class="vleg-dot" style="background:#FF4444"></div>Delayed: ${s.delayed}</div>
+        <div class="vleg-item"><div class="vleg-dot" style="background:#3A5570"></div>Not Started: ${s.notStarted}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function switchTab(tab, el){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  el.classList.add("active");
+  ["farmers","officers","villages"].forEach(t=>{
+    document.getElementById("tab-"+t).style.display = t===tab?"block":"none";
+  });
+}
+
+// Auto-refresh every 2 minutes
+loadData();
+setInterval(loadData, 120000);
+</script>
+</body>
+</html>

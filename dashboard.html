@@ -349,6 +349,9 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:#1A2F3E;min-hei
             <div class="chip off" data-group="problem" data-filter="noOfficer" onclick="toggleChip(this)">No Officer Assigned</div>
             <div class="chip off" data-group="problem" data-filter="hoAction" onclick="toggleChip(this)">HO Action Needed</div>
             <div class="chip off" data-group="problem" data-filter="deadFile" onclick="toggleChip(this)">Dead Files</div>
+            <div class="chip off" data-group="problem" data-filter="pay1Pending" onclick="toggleChip(this)">HO Pay 1 Pending</div>
+            <div class="chip off" data-group="problem" data-filter="pay2Pending" onclick="toggleChip(this)">HO Pay 2 Pending</div>
+            <div class="chip off" data-group="problem" data-filter="challanNoUTR" onclick="toggleChip(this)">Challan — UTR Missing</div>
           </div>
         </div>
         <div class="sfp-group">
@@ -546,6 +549,9 @@ function applyFilters(farmers){
     if(activeFilters.has("noOfficer")&&f.hasOfficer)return false;
     if(activeFilters.has("hoAction")&&!f.isHoNeeded)return false;
     if(activeFilters.has("deadFile")&&!(f.doneCount===0&&f.hasOfficer))return false;
+    if(activeFilters.has("pay1Pending")&&!(f.steps[4].status==="In Progress"&&(!f.pay1||!f.pay1.utr||!f.pay1.utr.trim())))return false;
+    if(activeFilters.has("pay2Pending")&&!(f.steps[7].status==="In Progress"&&(!f.pay2||!f.pay2.utr||!f.pay2.utr.trim())))return false;
+    if(activeFilters.has("challanNoUTR")&&!((f.pay1&&f.pay1.challan&&(!f.pay1.utr||!f.pay1.utr.trim()))||(f.pay2&&f.pay2.challan&&(!f.pay2.utr||!f.pay2.utr.trim()))))return false;
     if(activeFilters.has("poorPerf")&&!f.steps.some(st=>st.officer&&poorOff.has(st.officer.trim())))return false;
     if(activeFilters.has("officerStuck")&&!f.steps.some(st=>st.officer&&stuckOff.has(st.officer.trim())))return false;
     if(activeFilters.has("unassigned")&&f.steps.every(st=>st.officer.trim()))return false;
@@ -614,7 +620,22 @@ function renderCards(){
       <div class="card-expanded" id="exp-${i}">
         <div class="steps-list">${stepsHtml}</div>
         <div style="font-size:10px;color:var(--text2);margin-bottom:6px">${f.isGovt?"🏛️ Govt Land — Lease Process":"Status: "+f.status} · ${prog}%</div>
-        ${f.remarks?`<div style="background:#FFD74015;border:1px solid #FFD74030;border-radius:5px;padding:6px 10px;font-size:10px;color:#FFD740;margin-top:4px">📝 ${f.remarks}</div>`:""}
+        ${(f.pay1.challan||f.pay1.utr||f.pay2.challan||f.pay2.utr)?`
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
+          ${(f.pay1.challan||f.pay1.utr||f.pay1.amount)?`<div style="background:#E3F2FD;border:1px solid #90CAF9;border-radius:6px;padding:8px 10px">
+            <div style="font-size:9px;font-weight:700;color:#1565C0;margin-bottom:4px">💳 HO PAYMENT 1</div>
+            ${f.pay1.challan?`<div style="font-size:10px;color:#1A2F3E">Challan: <strong>${f.pay1.challan}</strong></div>`:""}
+            ${f.pay1.utr?`<div style="font-size:10px;color:#1A2F3E">UTR: <strong>${f.pay1.utr}</strong></div>`:""}
+            ${f.pay1.amount?`<div style="font-size:10px;color:#1B5E20;font-weight:700">₹ ${f.pay1.amount}</div>`:""}
+          </div>`:""}
+          ${(f.pay2.challan||f.pay2.utr||f.pay2.amount)?`<div style="background:#E8F5E9;border:1px solid #A5D6A7;border-radius:6px;padding:8px 10px">
+            <div style="font-size:9px;font-weight:700;color:#1B5E20;margin-bottom:4px">💳 HO PAYMENT 2</div>
+            ${f.pay2.challan?`<div style="font-size:10px;color:#1A2F3E">Challan: <strong>${f.pay2.challan}</strong></div>`:""}
+            ${f.pay2.utr?`<div style="font-size:10px;color:#1A2F3E">UTR: <strong>${f.pay2.utr}</strong></div>`:""}
+            ${f.pay2.amount?`<div style="font-size:10px;color:#1B5E20;font-weight:700">₹ ${f.pay2.amount}</div>`:""}
+          </div>`:""}
+        </div>`:""}
+        ${f.remarks?`<div style="background:#FFD74015;border:1px solid #FFD74030;border-radius:5px;padding:6px 10px;font-size:10px;color:#FFD740;margin-top:6px">📝 ${f.remarks}</div>`:""}
       </div>
     </div>`;
   }).join("");
@@ -716,6 +737,51 @@ function generateReport(){
         <div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--accent);font-weight:700">${ds}/${ts} steps (${sp}%)</div>
         <div style="color:var(--text2);font-size:10px;margin-top:3px">Projected: <span style="color:var(--accent2);font-weight:700">${pd<999?pDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):"Insufficient data"}</span></div>
       </div>
+    </div></div>`;
+
+    // ── PAYMENT SUMMARY ──────────────────────────────────────────────────────
+    const pay1Done = allData.filter(f=>f.pay1.utr&&f.pay1.utr.trim()).length;
+    const pay1Pending = allData.filter(f=>f.steps[4].status==="In Progress"&&(!f.pay1.utr||!f.pay1.utr.trim())).length;
+    const pay1ChallanOnly = allData.filter(f=>f.pay1.challan&&f.pay1.challan.trim()&&(!f.pay1.utr||!f.pay1.utr.trim())).length;
+    const pay2Done = allData.filter(f=>f.pay2.utr&&f.pay2.utr.trim()).length;
+    const pay2Pending = allData.filter(f=>f.steps[7].status==="In Progress"&&(!f.pay2.utr||!f.pay2.utr.trim())).length;
+    const pay2ChallanOnly = allData.filter(f=>f.pay2.challan&&f.pay2.challan.trim()&&(!f.pay2.utr||!f.pay2.utr.trim())).length;
+
+    // Total amounts
+    const totalPay1 = allData.reduce((sum,f)=>{const a=parseFloat(f.pay1.amount);return sum+(isNaN(a)?0:a);},0);
+    const totalPay2 = allData.reduce((sum,f)=>{const a=parseFloat(f.pay2.amount);return sum+(isNaN(a)?0:a);},0);
+
+    html+=`<div class="rcrd"><div class="rch"><span>💳</span><div><div class="rct">Payment Tracker — HO Payments</div><div class="rcs">Challan · UTR · Amount summary</div></div></div><div class="rcb">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div style="background:#E3F2FD;border:1px solid #90CAF9;border-radius:8px;padding:12px">
+          <div style="font-size:10px;font-weight:700;color:#1565C0;margin-bottom:8px">💳 HO PAYMENT 1 — Conversion Fee</div>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#546E7A">UTR Confirmed</span><span style="color:#1B5E20;font-weight:700">${pay1Done}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#546E7A">Challan raised, UTR pending</span><span style="color:#E65100;font-weight:700">${pay1ChallanOnly}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#546E7A">Payment pending</span><span style="color:#FF5252;font-weight:700">${pay1Pending}</span></div>
+            <div style="border-top:1px solid #90CAF9;margin-top:4px;padding-top:4px;display:flex;justify-content:space-between;font-size:12px"><span style="color:#1565C0;font-weight:700">Total Paid</span><span style="color:#1B5E20;font-weight:800">₹ ${totalPay1.toLocaleString('en-IN')}</span></div>
+          </div>
+        </div>
+        <div style="background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;padding:12px">
+          <div style="font-size:10px;font-weight:700;color:#1B5E20;margin-bottom:8px">💳 HO PAYMENT 2 — Stamp Duty + Reg Fee</div>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#546E7A">UTR Confirmed</span><span style="color:#1B5E20;font-weight:700">${pay2Done}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#546E7A">Challan raised, UTR pending</span><span style="color:#E65100;font-weight:700">${pay2ChallanOnly}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#546E7A">Payment pending</span><span style="color:#FF5252;font-weight:700">${pay2Pending}</span></div>
+            <div style="border-top:1px solid #A5D6A7;margin-top:4px;padding-top:4px;display:flex;justify-content:space-between;font-size:12px"><span style="color:#1B5E20;font-weight:700">Total Paid</span><span style="color:#1B5E20;font-weight:800">₹ ${totalPay2.toLocaleString('en-IN')}</span></div>
+          </div>
+        </div>
+      </div>
+      ${pay1ChallanOnly>0||pay2ChallanOnly>0?`
+      <div style="background:#FFF3E0;border:1px solid #FFCC80;border-radius:6px;padding:10px;margin-bottom:8px">
+        <div style="font-size:10px;font-weight:700;color:#E65100;margin-bottom:6px">⚠ Challan raised but UTR not recorded — Action needed</div>
+        ${allData.filter(f=>(f.pay1.challan&&!f.pay1.utr)||(f.pay2.challan&&!f.pay2.utr)).map(f=>`
+          <div style="font-size:10px;padding:4px 0;border-bottom:1px solid #FFE0B2;color:#1A2F3E">
+            <strong>${f.owner}</strong> · Sy:${f.syNo} · ${f.village}
+            ${f.pay1.challan&&!f.pay1.utr?` <span style="color:#E65100">Pay1 Challan:${f.pay1.challan}</span>`:""}
+            ${f.pay2.challan&&!f.pay2.utr?` <span style="color:#E65100">Pay2 Challan:${f.pay2.challan}</span>`:""}
+          </div>`).join("")}
+      </div>`:""}
     </div></div>`;
 
     // Pipeline — tappable
@@ -1000,6 +1066,8 @@ async function loadData(){
         sl:g(0),source:g(1),village:g(2),syNo:g(3),owner,acres:parseFloat(g(5))||0,
         steps,status:computeStatus(steps),
         remarks:g(35)||"",
+        pay1:{challan:g(20),utr:g(21),amount:g(22)},
+        pay2:{challan:g(32),utr:g(33),amount:g(34)},
         isGovt:isGovt(owner),
         isStuck:stuckSteps.length>0,stuckSteps,
         isHoNeeded:HO_STEPS.some(i=>steps[i].status==="In Progress"),

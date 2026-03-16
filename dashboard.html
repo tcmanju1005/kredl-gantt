@@ -940,11 +940,13 @@ async function loadData(){
     const text=await res.text();
     const clean=text.replace(/^[^(]+\(/,"").replace(/\);\s*$/,"");
     const json=JSON.parse(clean);
+    console.log("API response rows:", json.table?json.table.rows.length:"no table");
+    console.log("First row:", json.table&&json.table.rows[0]?JSON.stringify(json.table.rows[0]):"empty");
     if(!json.table||!json.table.rows){throw new Error("No data in sheet. Check sheet name is 'Master Tracker'");}
     allData=[];
     let isFirst=true;
     for(const r of json.table.rows){
-      if(isFirst){isFirst=false;continue;} // skip header row
+      if(isFirst){isFirst=false;continue;}
       if(!r.c||!r.c[0]||r.c[0].v===null)continue;
       const g=i=>r.c[i]&&r.c[i].v!=null?String(r.c[i].v).trim():"";
       const owner=g(4);

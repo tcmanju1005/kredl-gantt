@@ -932,7 +932,7 @@ function switchTab(t,el){
 // Live Google Sheets connection
 const SHEET_ID="1x9LMD--pg9wd3MqKAO286erq5Dxr67AN8vi2qm_g_gE";
 const SHEET_NAME="Master Tracker";
-const API_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&headers=1&tq=select%20*`;
+const API_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&headers=0`;
 
 async function loadData(){
   try{
@@ -942,7 +942,9 @@ async function loadData(){
     const json=JSON.parse(clean);
     if(!json.table||!json.table.rows){throw new Error("No data in sheet. Check sheet name is 'Master Tracker'");}
     allData=[];
+    let isFirst=true;
     for(const r of json.table.rows){
+      if(isFirst){isFirst=false;continue;} // skip header row
       if(!r.c||!r.c[0]||r.c[0].v===null)continue;
       const g=i=>r.c[i]&&r.c[i].v!=null?String(r.c[i].v).trim():"";
       const owner=g(4);

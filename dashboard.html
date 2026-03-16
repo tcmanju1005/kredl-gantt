@@ -613,7 +613,8 @@ function renderCards(){
       <div class="progress-bar"><div class="progress-fill" style="width:${prog}%;background:${pc}"></div></div>
       <div class="card-expanded" id="exp-${i}">
         <div class="steps-list">${stepsHtml}</div>
-        <div style="font-size:10px;color:var(--text2)">${f.isGovt?"🏛️ Govt Land — Lease Process":"Status: "+f.status} · ${prog}%</div>
+        <div style="font-size:10px;color:var(--text2);margin-bottom:6px">${f.isGovt?"🏛️ Govt Land — Lease Process":"Status: "+f.status} · ${prog}%</div>
+        ${f.remarks?`<div style="background:#FFD74015;border:1px solid #FFD74030;border-radius:5px;padding:6px 10px;font-size:10px;color:#FFD740;margin-top:4px">📝 ${f.remarks}</div>`:""}
       </div>
     </div>`;
   }).join("");
@@ -998,6 +999,7 @@ async function loadData(){
       allData.push({
         sl:g(0),source:g(1),village:g(2),syNo:g(3),owner,acres:parseFloat(g(5))||0,
         steps,status:computeStatus(steps),
+        remarks:g(35)||"",
         isGovt:isGovt(owner),
         isStuck:stuckSteps.length>0,stuckSteps,
         isHoNeeded:HO_STEPS.some(i=>steps[i].status==="In Progress"),

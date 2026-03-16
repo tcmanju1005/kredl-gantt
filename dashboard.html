@@ -29,7 +29,7 @@
 body{background:var(--bg);font-family:'DM Sans',sans-serif;color:#1A2F3E;min-height:100vh}
 
 /* TOP BAR */
-.topbar{background:var(--surface);padding:14px 16px 12px;box-shadow:0 2px 12px rgba(0,0,0,0.2)}
+.topbar{}
 .logo{font-family:'Space Mono',monospace;font-size:9px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:3px}
 .title{font-size:19px;font-weight:700;color:#fff;line-height:1.2}
 .subtitle{font-size:10px;color:var(--text2);margin-top:2px}
@@ -248,11 +248,35 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:#1A2F3E;min-hei
 <body>
 
 <!-- TOP BAR -->
-<div class="topbar">
-  <div class="logo">KREDL · Pavagada · 2GW Solar + 1GWh BESS</div>
-  <div class="title">Land Acquisition Dashboard</div>
-  <div class="subtitle">Ryapte Gram Panchayat · Tumkur District · GO No. Energy 178 VSS 2025</div>
-  <div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--accent2);margin-top:5px;letter-spacing:1px">Developed by Manjunath TC, AGM-BCW · KREDL</div>
+<div style="background:linear-gradient(135deg,#0A2540 0%,#0D3B2E 40%,#1A3A1A 100%);padding:28px 32px;position:relative;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.4)">
+  <!-- Decorative circles -->
+  <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,#00BFA540,transparent);pointer-events:none"></div>
+  <div style="position:absolute;bottom:-30px;left:30%;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,#69F0AE20,transparent);pointer-events:none"></div>
+  <div style="position:absolute;top:10px;left:60%;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,#FFD74015,transparent);pointer-events:none"></div>
+
+  <div style="position:relative;z-index:1">
+    <!-- Top line -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="background:linear-gradient(90deg,#00BFA5,#69F0AE);border-radius:4px;width:4px;height:40px;flex-shrink:0"></div>
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:11px;color:#69F0AE;letter-spacing:4px;text-transform:uppercase;margin-bottom:4px">KREDL · Pavagada Solar Park · 2GW + 1GWh BESS</div>
+        <div style="font-size:28px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;line-height:1.1">Land Acquisition Dashboard</div>
+      </div>
+    </div>
+
+    <!-- Stats strip -->
+    <div style="display:flex;align-items:center;gap:0;margin-top:12px;flex-wrap:wrap;gap:8px">
+      <div style="background:rgba(0,191,165,0.15);border:1px solid rgba(0,191,165,0.3);border-radius:6px;padding:5px 14px;font-size:11px;color:#00BFA5;font-weight:600">📍 Ryapte Gram Panchayat</div>
+      <div style="background:rgba(105,240,174,0.12);border:1px solid rgba(105,240,174,0.25);border-radius:6px;padding:5px 14px;font-size:11px;color:#69F0AE;font-weight:600">🏛️ Tumkur District</div>
+      <div style="background:rgba(255,215,64,0.12);border:1px solid rgba(255,215,64,0.25);border-radius:6px;padding:5px 14px;font-size:11px;color:#FFD740;font-weight:600">📜 GO No. Energy 178 VSS 2025</div>
+      <div style="background:rgba(64,196,255,0.12);border:1px solid rgba(64,196,255,0.25);border-radius:6px;padding:5px 14px;font-size:11px;color:#40C4FF;font-weight:600">🌾 5 Villages · ~8000 Acres</div>
+    </div>
+
+    <!-- Developer credit -->
+    <div style="margin-top:12px;font-family:'Space Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:1.5px">
+      Developed by <span style="color:#69F0AE;font-weight:700">Manjunath TC</span>, AGM-BCW · KREDL
+    </div>
+  </div>
 </div>
 
 <div id="loading"><div class="spinner"></div><div class="loading-text">Fetching live data...</div></div>

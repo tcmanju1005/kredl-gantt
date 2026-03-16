@@ -944,11 +944,11 @@ async function loadData(){
     console.log("First row:", json.table&&json.table.rows[0]?JSON.stringify(json.table.rows[0]):"empty");
     if(!json.table||!json.table.rows){throw new Error("No data in sheet. Check sheet name is 'Master Tracker'");}
     allData=[];
-    let isFirst=true;
     for(const r of json.table.rows){
-      if(isFirst){isFirst=false;continue;}
-      if(!r.c||!r.c[0]||r.c[0].v===null)continue;
+      if(!r.c||!r.c[1]||r.c[1].v===null)continue; // skip empty rows
       const g=i=>r.c[i]&&r.c[i].v!=null?String(r.c[i].v).trim():"";
+      if(g(1)==="source")continue; // skip header row
+      if(g(2)==="village")continue; // skip header row
       const owner=g(4);
       const steps=Array.from({length:9},(_,s)=>({
         status:g(6+s*3)||"Pending",

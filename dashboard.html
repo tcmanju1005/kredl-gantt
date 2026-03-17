@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>KREDL Land Acquisition Dashboard</title>
+<title>BCW-Ryapte Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -990,58 +990,41 @@ function switchTab(t,el){
   ["farmers","report","officers","villages","govt"].forEach(x=>{document.getElementById("tab-"+x).style.display=x===t?"block":"none";});
 }
 
-// Live Google Sheets connection
-const SHEET_ID="1x9LMD--pg9wd3MqKAO286erq5Dxr67AN8vi2qm_g_gE";
-const SHEET_NAME="Master Tracker";
-const API_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&headers=0`;
+// FastAPI Backend
+const API_BASE="https://kredl-api.onrender.com";
 
 async function loadData(){
   try{
-    const res=await fetch(API_URL);
-    const text=await res.text();
-    const clean=text.replace(/^[^(]+\(/,"").replace(/\);\s*$/,"");
-    const json=JSON.parse(clean);
-    console.log("API response rows:", json.table?json.table.rows.length:"no table");
-    console.log("First row:", json.table&&json.table.rows[0]?JSON.stringify(json.table.rows[0]):"empty");
-    if(!json.table||!json.table.rows){throw new Error("No data in sheet. Check sheet name is 'Master Tracker'");}
+    const res=await fetch(`${API_BASE}/farmers`);
+    const json=await res.json();
     allData=[];
-    for(const r of json.table.rows){
-      if(!r.c||!r.c[1]||r.c[1].v===null)continue; // skip empty rows
-      const g=i=>r.c[i]&&r.c[i].v!=null?String(r.c[i].v).trim():"";
-      if(g(1)==="source")continue; // skip header row
-      if(g(2)==="village")continue; // skip header row
-      const owner=g(4);
-      const normalizeStatus=s=>{
-        const v=s.toLowerCase().trim();
-        if(v==="done")return"Done";
-        if(v==="in progress"||v==="inprogress")return"In Progress";
-        if(v==="n/a"||v==="na")return"N/A";
-        return"Pending";
-      };
-      const steps=Array.from({length:9},(_,s)=>({
-        status:normalizeStatus(g(6+s*3)),
-        officer:g(7+s*3)||"",
-        date:g(8+s*3)||"",
-        parsedDate:parseDate(g(8+s*3))
+    for(const f of json.farmers){
+      const steps=f.steps.map(s=>({
+        status:s.status||"Pending",
+        officer:s.officer||"",
+        date:s.date_done||"",
+        parsedDate:parseDate(s.date_done||"")
       }));
       const stuckSteps=steps.filter(st=>st.status==="In Progress"&&st.parsedDate&&daysBetween(st.parsedDate,today())>=5);
       allData.push({
-        sl:g(0),source:g(1),village:g(2),syNo:g(3),owner,acres:parseFloat(g(5))||0,
-        steps,status:computeStatus(steps),
-        remarks:g(35)||"",
-        pay1:{challan:g(20),utr:g(21),amount:g(22)},
-        pay2:{challan:g(32),utr:g(33),amount:g(34)},
-        isGovt:isGovt(owner),
+        sl:String(f.id),source:f.source,village:f.village,syNo:f.sy_no,
+        owner:f.owner,acres:f.acres||0,
+        steps,status:f.overall_status||computeStatus(steps),
+        remarks:f.remarks||"",
+        pay1:{challan:f.pay1_challan||"",utr:f.pay1_utr||"",amount:f.pay1_amount||""},
+        pay2:{challan:f.pay2_challan||"",utr:f.pay2_utr||"",amount:f.pay2_amount||""},
+        isGovt:isGovt(f.owner),
         isStuck:stuckSteps.length>0,stuckSteps,
         isHoNeeded:HO_STEPS.some(i=>steps[i].status==="In Progress"),
-        doneCount:steps.filter(s=>s.status==="Done").length,
+        doneCount:f.done_count||steps.filter(s=>s.status==="Done").length,
         hasOfficer:steps.some(s=>s.officer.trim())
       });
     }
     updateStats();renderCards();renderOfficers();renderVillages();renderGovtTab();
     document.getElementById("loading").style.display="none";
     document.getElementById("dashboard").style.display="block";
-    document.getElementById("last-upd").textContent="Live · Updated: "+new Date().toLocaleTimeString("en-IN")+" · Auto-refresh 2 min";
+    document.getElementById("last-upd").textContent="Live · Updated: "+new Date().toLocaleTimeString("en-IN")+" · Auto-sync every 2 min";
+    fetch(`${API_BASE}/ping`).catch(()=>{});
   }catch(e){
     document.getElementById("loading").style.display="none";
     const eb=document.getElementById("error-box");
